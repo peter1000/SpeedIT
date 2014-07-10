@@ -1,0 +1,32 @@
+# Python files
+*.pyc
+build/
+dist/
+docs/SpeedIT-DOCUMENTATION
+*.egg-info
+__pycache__/
+
+# Backups
+*~
+
+# PyCharm IDE files
+.idea/
+pycharm-debug.egg
+pycharm-debug.py
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+cover
+.testrepository
+htmlcov
+
+# Temp and status files
+*.db
+.*.swp
+*.log
+*.pid
+pidfile
+.DS_Store
+*.rc

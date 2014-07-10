@@ -1,0 +1,6 @@
+# .coveragerc to control coverage.py
+[run]
+branch = True
+
+[report]
+omit = *dev_run*, *Version*, *__init__*, *ProjectErr*, *cProfile*, *profile*, *psutil*

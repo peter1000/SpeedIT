@@ -1,0 +1,8 @@
+recursive-include SpeedIT *
+include CHANGELOG.txt
+include LICENSE.rst
+include MANIFEST.in
+include README.rst
+include requirements.txt
+include setup.cfg
+include setup.py
