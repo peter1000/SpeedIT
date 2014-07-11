@@ -2,6 +2,8 @@ xxxx-xx-xx    3.0.1
 -------------------
    * FIXED ERRORS:
    * NEW ADDED:
+      - Example26IfVsTryGetDictValue.py
+      
    * UPDATED, IMPROVEMENTS:
    * REMOVED:
    * DOCUMENTATION:
