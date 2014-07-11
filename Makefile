@@ -23,7 +23,7 @@ help:
 
 
 cleanall: clean
-	@rm -rf build dist cover zippped_docs
+	@rm -rf build dist cover zipped_docs
 	@rm -rf docs/SpeedIT-DOCUMENTATION
 	@rm -rf info/GENERAL-INFO
 
@@ -70,9 +70,9 @@ docs:
 	@echo -e '\n=== finished docs'
 
 zip_docs: docs
-	rm -rf zippped_docs
-	mkdir zippped_docs
-	cd docs/SpeedIT-DOCUMENTATION/html && zip -r ../../../zippped_docs/docs_html_SpeedIT.zip *
+	rm -rf zipped_docs
+	mkdir zipped_docs
+	cd docs/SpeedIT-DOCUMENTATION/html && zip -r ../../../zipped_docs/docs_html_SpeedIT.zip *
 	cd ..
 	$(MAKE) clean
 	@echo -e '\n=== finished zip_docs'
