@@ -29,13 +29,12 @@ source__list = ['example0', 'example16', 'example1', 'example2', 'example3', 'ex
 
 def find_duplicates_1():
    # http://stackoverflow.com/questions/9835762/find-and-list-duplicates-in-python-list
-   seen = set()
-   seen_add = seen.add
    # adds all elements it doesn't know yet to seen and all other to seen_twice
-   seen_twice = set(item for item in source__list if item in seen or seen_add(item))
+   seen = set()
+   seen_twice = set(item for item in source__list if item in seen or seen.add(item))
    #print(seen_twice)
-
-    
+   
+   
 def find_duplicates_2():
    seen_twice = (set([item for item in source__list if source__list.count(item) > 1]))
    #print(seen_twice)
