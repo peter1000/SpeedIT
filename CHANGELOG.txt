@@ -4,6 +4,7 @@ xxxx-xx-xx    3.0.1
    * NEW ADDED:
       - Example25IsInstanceVsLenTuple
       - Example26IfVsTryGetDictValue.py
+      - Example27FindDuplicates.py
       
    * UPDATED, IMPROVEMENTS:
    * REMOVED:
