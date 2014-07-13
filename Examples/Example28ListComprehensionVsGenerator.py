@@ -1,4 +1,4 @@
-""" Example27FindDuplicates
+""" Example28ListComprehensionVsGenerator
 """
 from collections import Counter
 from inspect import (
@@ -30,52 +30,62 @@ source__list = ['example0', 'example16', 'example1', 'example2', 'example3', 'ex
 source__tuple = ('example0', 'example16', 'example1', 'example2', 'example3', 'example4', 'example5', 'example6', 'example7', 'example8', 'example9', 'example10', 'example11', 'example12', 'example13', 'example14', 'example15', 'example16', 'example17', 'example25', 'example18', 'example19', 'example20', 'example21', 'example22', 'example23', 'example24', 'example25', 'example26', 'example27', 'example5', 'example28', 'example29')
 
 
-def find_duplicates_1():
-   # http://stackoverflow.com/questions/9835762/find-and-list-duplicates-in-python-list
-   # adds all elements it doesn't know yet to seen and all other to seen_twice
-   seen = set()
-   seen_twice = set(item for item in source__list if item in seen or seen.add(item))
-   #print(seen_twice)
+def list_comprehension():
+   new_list = [item for item in source__list]
+   #print(new_list)
    
+def list_comprehension_cast_to_list():
+   new_list = list([item for item in source__list])
+   #print(new_list)
    
-def find_duplicates_2():
-   seen_twice = (set([item for item in source__list if source__list.count(item) > 1]))
-   #print(seen_twice)
-
-def find_duplicates_3():
-   seen_twice = [x_ for x_, y_ in Counter(source__list).items() if y_ > 1]
-   #print(seen_twice)
+def generator_cast_to_list():
+   new_list = list((item for item in source__list))
+   #print(new_list)
    
-
-def find_duplicates_tuple_1():
-   # http://stackoverflow.com/questions/9835762/find-and-list-duplicates-in-python-list
-   # adds all elements it doesn't know yet to seen and all other to seen_twice
-   seen = set()
-   seen_twice = set(item for item in source__tuple if item in seen or seen.add(item))
-   #print(seen_twice)
+def list_comprehension_cast_to_tuple():
+   new_tuple = tuple([item for item in source__list])
+   #print(new_tuple)
    
+def generator_cast_to_tuple():
+   new_tuple = tuple((item for item in source__list))
+   #print(new_tuple)
    
-def find_duplicates_tuple_2():
-   seen_twice = (set([item for item in source__tuple if source__list.count(item) > 1]))
-   #print(seen_twice)
-
-def find_duplicates_tuple_3():
-   seen_twice = [x_ for x_, y_ in Counter(source__tuple).items() if y_ > 1]
-   #print(seen_twice)
-
-
+ 
+def source_tuple_list_comprehension():
+   new_list = [item for item in source__tuple]
+   #print(new_list)
+   
+def source_tuple_list_comprehension_cast_to_list():
+   new_list = list([item for item in source__tuple])
+   #print(new_list)
+   
+def source_tuple_generator_cast_to_list():
+   new_list = list((item for item in source__tuple))
+   #print(new_list)
+   
+def source_tuple_list_comprehension_cast_to_tuple():
+   new_tuple = tuple([item for item in source__tuple])
+   #print(new_tuple)
+   
+def source_tuple_generator_cast_to_tuple():
+   new_tuple = tuple((item for item in source__tuple))
+   #print(new_tuple)
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 def main():
    pass
    func_dict = {
       # value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
-      'find_duplicates_1': (find_duplicates_1, [], {}),
-      'find_duplicates_2': (find_duplicates_2, [], {}),
-      'find_duplicates_3': (find_duplicates_3, [], {}),
+      'list_comprehension': (list_comprehension, [], {}),
+      'list_comprehension_cast_to_list': (list_comprehension_cast_to_list, [], {}),
+      'generator_cast_to_list': (generator_cast_to_list, [], {}),
+      'list_comprehension_cast_to_tuple': (list_comprehension_cast_to_tuple, [], {}),
+      'generator_cast_to_tuple': (generator_cast_to_tuple, [], {}),
       
-      'find_duplicates_tuple_1': (find_duplicates_tuple_1, [], {}),
-      'find_duplicates_tuple_2': (find_duplicates_tuple_2, [], {}),
-      'find_duplicates_tuple_3': (find_duplicates_tuple_3, [], {}),
+      'source_tuple_list_comprehension': (source_tuple_list_comprehension, [], {}),
+      'source_tuple_list_comprehension_cast_to_list': (source_tuple_list_comprehension_cast_to_list, [], {}),
+      'source_tuple_generator_cast_to_list': (source_tuple_generator_cast_to_list, [], {}),
+      'source_tuple_list_comprehension_cast_to_tuple': (source_tuple_list_comprehension_cast_to_tuple, [], {}),
+      'source_tuple_generator_cast_to_tuple': (source_tuple_generator_cast_to_tuple, [], {}),
    }
 
    setup_line_list = [
@@ -84,8 +94,8 @@ def main():
    ]
 
    check_run_sec = 1
-   with open('result_output/Example27FindDuplicates.txt', 'w') as file_:
-      file_.write('\n\n Example27FindDuplicates.py output\n\n')
+   with open('result_output/Example28ListComprehensionVsGenerator.txt', 'w') as file_:
+      file_.write('\n\n Example28ListComprehensionVsGenerator.py output\n\n')
       for count in range(3):
          file_.write('\n'.join(speedit_func_benchmark_list(func_dict, setup_line_list, run_sec=check_run_sec, out_put_in_sec=False, use_func_name=False)))
          file_.write('\n\n')
