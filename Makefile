@@ -26,7 +26,8 @@ cleanall: clean
 	@rm -rf build dist cover zipped_docs
 	@rm -rf docs/SpeedIT-DOCUMENTATION
 	@rm -rf info/GENERAL-INFO
-
+	@rm -rf docs/source/SpeedIT.rst docs/source/modules.rst
+   
 clean:
 	@find . -iname '__pycache__' |xargs rm -rf
 	@find . -iname '*.egg-info' |xargs rm -rf
