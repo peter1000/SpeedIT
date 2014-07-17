@@ -6,6 +6,7 @@ xxxx-xx-xx    3.0.1
       - Example26IfVsTryGetDictValue.py
       - Example27FindDuplicates.py
       - Example28ListComprehensionVsGenerator.py
+      - Example29NestedListComprehension.py
       
    * UPDATED, IMPROVEMENTS:
    * REMOVED:
