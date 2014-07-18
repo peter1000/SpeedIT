@@ -2,11 +2,16 @@ xxxx-xx-xx    3.0.1
 -------------------
    * FIXED ERRORS:
    * NEW ADDED:
-      - Example25IsInstanceVsLenTuple
+      - Example25IsInstanceVsClassDictLookUpVsLenTuple.py
       - Example26IfVsTryGetDictValue.py
       - Example27FindDuplicates.py
       - Example28ListComprehensionVsGenerator.py
-      - Example29NestedListComprehension.py
+      - Example29MapForLoopMultipleNestedComprehension.py
+      - Example30MapForLoopListComprehension1.py
+      - Example30MapForLoopListComprehension2.py
+      - Example30MapForLoopListComprehension3.py
+      - Example30MapForLoopListComprehension4.py
+      - Example31ListSliceVsDelFirstLastElement.py
       
    * UPDATED, IMPROVEMENTS:
    * REMOVED:
