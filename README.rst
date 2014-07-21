@@ -7,7 +7,7 @@ SpeedIT: Description
 .. rubric:: SpeedIT:
 .. rubric:: A Collection of: Benchmark-IT, Profile-IT, Line-Memory-Profile-IT, Disassemble-IT.
 
-   .. note:: `SpeedIT` as of version 4.0 (20140721)` is not backwards compatible
+.. note:: `SpeedIT as of version 4.0 (20140721)` is not backwards compatible
 
 .. contents::
    :depth: 3
