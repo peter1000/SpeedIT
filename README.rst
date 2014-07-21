@@ -7,6 +7,8 @@ SpeedIT: Description
 .. rubric:: SpeedIT:
 .. rubric:: A Collection of: Benchmark-IT, Profile-IT, Line-Memory-Profile-IT, Disassemble-IT.
 
+   .. note:: `SpeedIT` as of version 4.0 (20140721)` is not backwards compatible
+
 .. contents::
    :depth: 3
 
@@ -34,7 +36,7 @@ BenchmarkIT
 .. code-block:: python
 
    # Import: BenchmarkIT
-   from SpeedIT.BenchmarkIT import speedit_func_benchmark_list
+   from SpeedIT.BenchmarkIT import speedit_benchmark
 
    # get a list of text lines to iterate over and split by double colon
    source_list1 = [
@@ -104,37 +106,35 @@ BenchmarkIT
 
 .. code-block:: python
 
-   # run BenchmarkIT and print the result to the terminal or write it to file
-   benchmark_result = speedit_func_benchmark_list(func_dict, setup_line_list, run_sec=1, out_put_in_sec=False, use_func_name=True)
-   print(benchmark_result)
-
    with open('result_output/ReadmeExampleBenchmarkIT.txt', 'w') as file_:
       file_.write('\n\n ReadmeExampleBenchmarkIT.py output\n\n')
-      file_.write('\n'.join(benchmark_result))
-
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=2))
 
 **RESULT** is a table which format is conform with reStructuredText
 
 
-+--------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                                      SpeedIT: `speedit_func_benchmark_list`  for: <2> functions. run_sec: <1>                                          |
-+----------------------------+------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
-|                       name | rank | compare % | num. loops | avg_loop | best_loop | second_best_loop | worst_loop | second_worst_loop | all_loops time |
-+============================+======+===========+============+==========+===========+==================+============+===================+================+
-| split_check_first_notfound |    1 |   100.000 |    123,421 |  7.39 us |   7.04 us |          7.08 us |   50.89 us |          37.59 us |      911.76 ms |
-+----------------------------+------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
-|          split_catch_error |    2 |   307.788 |     42,259 | 22.74 us |  21.82 us |         21.82 us |   61.33 us |          59.04 us |      960.87 ms |
-+----------------------------+------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
++----------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                           SpeedIT: `BenchmarkIT`  for: <2> functions. with_gc: <False> run_sec: <1>                                            |
++----------------------------+--------------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
+|                       name | rank-average | compare % | num. loops | avg_loop | best_loop | second_best_loop | worst_loop | second_worst_loop | all_loops time |
++============================+==============+===========+============+==========+===========+==================+============+===================+================+
+| split_check_first_notfound |            1 |   100.000 |    112,675 |  8.10 us |   7.60 us |          7.60 us |   50.05 us |          32.67 us |      912.39 ms |
++----------------------------+--------------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
+|          split_catch_error |            2 |   275.092 |     42,877 | 22.28 us |  20.70 us |         20.81 us |   79.46 us |          52.45 us |      955.12 ms |
++----------------------------+--------------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
 
-*Short explanation of result:*
 
-- compare %: takes the `avg_loop time` of the best function
 
-   - the best of all `avg_loop time` is set as 100 % and the other test are compared to that
+**Short explanation of result:**
+
+- compare %: Depends on the setting for `rank_by`
+
+   - rank_by='best': takes the function with the fastest `best_loop time` and set it as 100 % and the other test are compared to that
+   - rank_by='average': takes the function with the fastest `avg_loop time` and set it as 100 % and the other test are compared to that
 
 - loops: are the loops used
 
-- The next five are here to get a feeling of the extremes and how accurate the results my be
+- The next five are here to get a feeling of the extremes and how accurate the results might be
 
    - best_loop: the fastest of all loops
 
@@ -146,11 +146,19 @@ BenchmarkIT
 
    - all_loops time: is the time it took for all loops to run
 
-   - **Example Above**
+   - *Example Above*
 
-      - without the extra data one would only know that the average loop was 3 times faster if one checks first if the split item exists
+      - without the extra data one would only know that the average loop was approximately 3 times faster if one checks first if the split item exists
 
-      - BUT as one can see the fastest of the `split_catch_error: 21.82 us` is still more than double so fast than the slowest of the 'split_check_first_notfound: 50.89 us'
+      - BUT as one can see the fastest of the `split_catch_error: 20.70 us` is still more nearly double so fast than the slowest of the 'split_check_first_notfound: 50.05 us'
+
+      .. note:: from https://docs.python.org/3.4/library/timeit.html repeat
+
+         It’s tempting to calculate mean and standard deviation from the result vector and report these. However, this is not very useful. 
+         In a typical case, the lowest value gives a lower bound for how fast your machine can run the given code snippet; 
+         higher values in the result vector are typically not caused by variability in Python’s speed, but by other processes interfering 
+         with your timing accuracy. So the min() of the result is probably the only number you should be interested in. 
+         After that, you should look at the entire vector and apply common sense rather than statistics.
 
 
 ProfileIT
@@ -167,44 +175,37 @@ Uses pythons cProfiler: *most of the things are similar to what we saw above.*
 
 .. code-block:: python
 
-   # run ProfileIT and print the result to the terminal or write it to file
-   profile_result = speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=True)
-   for table in profile_result:
-      print('\n\n')
-      print('\n'.join(table))
 
-   with open('result_output/Example3ProfileIT.txt', 'w') as file_:
-      file_.write('\n\n Example3ProfileIT.py output\n\n')
-      for table in profile_result:
-         file_.write('\n\n')
-         file_.write('\n'.join(table))
+   with open('result_output/ReadmeExampleProfileIT.txt', 'w') as file_:
+      file_.write('\n\n ReadmeExampleProfileIT.py output\n\n')
+      file_.write(speedit_profile(func_dict, output_in_sec=False, use_func_name=True))
 
 
 **RESULT** is for each function a separate table which format is conform with reStructuredText
 
 function 1
 
-+-------------------------------------------------------------------------------------------------------------+
-| SpeedIT: `profile` name: <split_catch_error> total_calls: <17> primitive_calls: <17> total_time: <44.00 us> |
-+------+-----------+-----------+-----------------+------------------------------------------------------------+
-| rank | compare % | func_time | number_of_calls |                                                   func_txt |
-+======+===========+===========+=================+============================================================+
-|    1 |    75.000 |  33.00 us |               1 |            ReadmeExampleProfileIT.py:52(split_catch_error) |
-+------+-----------+-----------+-----------------+------------------------------------------------------------+
-|    2 |    25.000 |  11.00 us |              16 |                          <method 'split' of 'str' objects> |
-+------+-----------+-----------+-----------------+------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------------+
+| SpeedIT: `ProfileIT` name: <split_catch_error> total_calls: <17> primitive_calls: <17> total_time: <83.00 us> |
++------+-----------+-----------+-----------------+--------------------------------------------------------------+
+| rank | compare % | func_time | number_of_calls |                                                     func_txt |
++======+===========+===========+=================+==============================================================+
+|    1 |    75.904 |  63.00 us |               1 |              ReadmeExampleProfileIT.py:50(split_catch_error) |
++------+-----------+-----------+-----------------+--------------------------------------------------------------+
+|    2 |    24.096 |  20.00 us |              16 |                            <method 'split' of 'str' objects> |
++------+-----------+-----------+-----------------+--------------------------------------------------------------+
 
 function 2
 
-+----------------------------------------------------------------------------------------------------------------------+
-| SpeedIT: `profile` name: <split_check_first_notfound> total_calls: <10> primitive_calls: <10> total_time: <16.00 us> |
-+------+-----------+-----------+-----------------+---------------------------------------------------------------------+
-| rank | compare % | func_time | number_of_calls |                                                            func_txt |
-+======+===========+===========+=================+=====================================================================+
-|    1 |    68.750 |  11.00 us |               1 |            ReadmeExampleProfileIT.py:61(split_check_first_notfound) |
-+------+-----------+-----------+-----------------+---------------------------------------------------------------------+
-|    2 |    31.250 |   5.00 us |               9 |                                   <method 'split' of 'str' objects> |
-+------+-----------+-----------+-----------------+---------------------------------------------------------------------+
++------------------------------------------------------------------------------------------------------------------------+
+| SpeedIT: `ProfileIT` name: <split_check_first_notfound> total_calls: <10> primitive_calls: <10> total_time: <26.00 us> |
++------+-----------+-----------+-----------------+-----------------------------------------------------------------------+
+| rank | compare % | func_time | number_of_calls |                                                              func_txt |
++======+===========+===========+=================+=======================================================================+
+|    1 |    65.385 |  17.00 us |               1 |              ReadmeExampleProfileIT.py:59(split_check_first_notfound) |
++------+-----------+-----------+-----------------+-----------------------------------------------------------------------+
+|    2 |    34.615 |   9.00 us |               9 |                                     <method 'split' of 'str' objects> |
++------+-----------+-----------+-----------------+-----------------------------------------------------------------------+
 
 
 *Short explanation of result:*
@@ -249,7 +250,7 @@ Projects using SpeedIT
 
 `projects` which make use of: **SpeedIT**
 
-`RDICT <https://github.com/peter1000/RDICT>`_  (R(estricted) Dict(ionary). Simple, reasonable fast, restricted python dictionary objects.)
+`ReOBJ <https://github.com/peter1000/ReOBJ>`_  (R(estricted) E(xtended) Objects. Simple, reasonable fast, restricted/extended python objects.)
 
 `LCONF <https://github.com/peter1000/LCONF>`_  (L(ight) CONF(iguration): A simple human-readable data serialization format for dynamic configuration.)
 

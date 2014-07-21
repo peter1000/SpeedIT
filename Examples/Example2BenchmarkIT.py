@@ -22,7 +22,7 @@ ROOT_PACKAGE_PATH = join(PROJECT_ROOT, ROOT_PACKAGE_NAME)
 
 syspath.insert(0, PROJECT_ROOT)
 
-from SpeedIT.BenchmarkIT import speedit_func_benchmark_list
+from SpeedIT.BenchmarkIT import speedit_benchmark
 
 
 def helper_fnouter(y_):
@@ -116,13 +116,16 @@ def main():
       'from __main__ import helper_fnouter'
    ]
 
-   benchmark_result = speedit_func_benchmark_list(func_dict, setup_line_list, run_sec=1, out_put_in_sec=False, use_func_name=True)
-   print('\n'.join(benchmark_result))
-
+   check_run_sec = 1
    with open('result_output/Example2BenchmarkIT.txt', 'w') as file_:
       file_.write('\n\n Example2BenchmarkIT.py output\n\n')
-      file_.write('\n'.join(benchmark_result))
-
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=2))
+      file_.write('\n\n')
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='average', run_sec=1, repeat=2))
+      file_.write('\n\n')
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=True, rank_by='best', run_sec=1, repeat=1))
+      file_.write('\n\n')
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=-1, repeat=5))
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 if __name__ == '__main__':

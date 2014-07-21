@@ -62,7 +62,7 @@ html_logo = 'img/peter1000.png'
 html_last_updated_fmt = '%b %d, %Y'
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
 
 # If false, no module index is generated.
 html_domain_indices = True

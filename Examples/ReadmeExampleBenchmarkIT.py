@@ -20,7 +20,7 @@ ROOT_PACKAGE_PATH = join(PROJECT_ROOT, ROOT_PACKAGE_NAME)
 
 syspath.insert(0, PROJECT_ROOT)
 
-from SpeedIT.BenchmarkIT import speedit_func_benchmark_list
+from SpeedIT.BenchmarkIT import speedit_benchmark
 
 
 # get a list of text lines to iterate over and split by double colon
@@ -77,13 +77,9 @@ def main():
       'from __main__ import source_list1',
    ]
 
-   check_run_sec = 1
    with open('result_output/ReadmeExampleBenchmarkIT.txt', 'w') as file_:
       file_.write('\n\n ReadmeExampleBenchmarkIT.py output\n\n')
-      for count in range(3):
-         file_.write('\n'.join(speedit_func_benchmark_list(func_dict, setup_line_list, run_sec=check_run_sec, out_put_in_sec=False, use_func_name=False)))
-         file_.write('\n\n')
-
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='average', run_sec=1, repeat=2))
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 if __name__ == '__main__':

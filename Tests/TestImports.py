@@ -36,8 +36,7 @@ def test_all_imports():
    for full_path in full_modules_path:
       packagepath, modulepath = split(full_path)
       package = packagepath[chars_to_cut:].replace('/', '.')
-      print('\n\npackage: ', package)
-      if '__' not in package:  # skip packages with '__' e.g. __pycache__
+      if '__' not in package:   # skip packages with '__' e.g. __pycache__
          module_full_name = '{}.{}'.format(package, modulepath[:-3])
          import_module(module_full_name)
 

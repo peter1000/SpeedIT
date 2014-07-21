@@ -1,13 +1,13 @@
 """ Main SpeedIT module
 """
-from SpeedIT.BenchmarkIT import speedit_func_benchmark_list
-from SpeedIT.DisassembleIT import speedit_func_disassemble_list
-from SpeedIT.LineMemoryProfileIT import speedit_func_line_memory_list
-from SpeedIT.ProfileIT import speedit_func_profile_list
+from SpeedIT.BenchmarkIT import speedit_benchmark
+from SpeedIT.DisassembleIT import speedit_disassemble
+from SpeedIT.LineMemoryProfileIT import speedit_line_memory
+from SpeedIT.ProfileIT import speedit_profile
 
 
-def speed_it(func_dict, setup_line_list, run_sec=0.1, out_put_in_sec=False, use_func_name=True):
-   """ Returns one txt string for all: BenchmarkIT, ProfileIT, LineMemoryProfileIT: format is conform with reStructuredText
+def speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=3):
+   """ Returns one txt string for all: Benchmark-IT, Profile-IT, Line-Memory-Profile-IT, Disassemble-IT: format is conform with reStructuredText
 
    Usage:
 
@@ -32,33 +32,41 @@ def speed_it(func_dict, setup_line_list, run_sec=0.1, out_put_in_sec=False, use_
 
          .. warning:: no multiline string or indented code line
 
-      run_sec (float): the number of loops per run is scaled to approximately fit the run_sec
-      out_put_in_sec (int): if true the output is keep in seconds if false it is transformed to: BenchmarkIT and ProfileIT
+      use_func_name (bool): if True the function name will be used in the output `name` if False the `func_dict key` will be used in the the output `name`
+
+      output_in_sec (int): if true the output is keep in seconds if false it is transformed to:
          second         (s)
          millisecond    (ms)  One thousandth of one second
          microsecond    (µs)  One millionth of one second
          nanosecond     (ns)  One billionth of one second
-      use_func_name (bool): if True the function name will be used in the output `name column` if False the `func_dict key` will be used in the the output `name column`
+
+      with_gc (bool): used by `BenchmarkIT`: if True gc is kept on during timing: if False: turns off garbage collection during the timing
+
+      rank_by (str): used by `BenchmarkIT`: `best` or `average`
+
+      run_sec (float or -1 or None): used by `BenchmarkIT`: the number of loops per run is scaled to approximately fit the run_sec
+
+            - if run_sec is -1: then the generated function source code is only run once
+
+            - if run_sec is None:  then the generated function source code is only printed
+               this is mainly useful to see the exact final `func code block` which will be timed.      output_in_sec (int): if true the output is keep in seconds if false it is transformed to: BenchmarkIT and ProfileIT
+
+      repeat (int): used by `BenchmarkIT`: how often everything is repeated again
+         This is a convenience variable that calls the whole setup repeatedly
 
    Returns:
       str: ready to print or write to file: table format is conform with reStructuredText
    """
-   result_txt = ['\n\n\n================= BenchmarkIT ================= BenchmarkIT  ================= BenchmarkIT  =================\n\n\n']
-   result_txt.extend(speedit_func_benchmark_list(func_dict, setup_line_list, run_sec=run_sec, out_put_in_sec=out_put_in_sec, use_func_name=use_func_name))
+   result_txt = '\n\n\n================= BenchmarkIT ================= BenchmarkIT  ================= BenchmarkIT  =================\n\n\n'
+   result_txt += speedit_benchmark(func_dict, setup_line_list, use_func_name=use_func_name, output_in_sec=output_in_sec, with_gc=with_gc, rank_by=rank_by, run_sec=run_sec, repeat=repeat)
 
-   result_txt.append('\n\n\n================= ProfileIT ================= ProfileIT  ================= ProfileIT  =================\n')
-   for table in speedit_func_profile_list(func_dict, out_put_in_sec=out_put_in_sec, use_func_name=use_func_name):
-      result_txt.append('\n\n')
-      result_txt.extend(table)
+   result_txt += '\n\n\n================= ProfileIT ================= ProfileIT  ================= ProfileIT  =================\n'
+   result_txt += speedit_profile(func_dict, use_func_name=use_func_name, output_in_sec=output_in_sec)
 
-   result_txt.append('\n\n\n================= LineMemoryProfileIT ================= LineMemoryProfileIT  ================= LineMemoryProfileIT  =================\n')
-   for table in speedit_func_line_memory_list(func_dict, use_func_name=use_func_name):
-      result_txt.append('\n\n')
-      result_txt.extend(table)
+   result_txt += '\n\n\n================= LineMemoryProfileIT ================= LineMemoryProfileIT  ================= LineMemoryProfileIT  =================\n'
+   result_txt += speedit_line_memory(func_dict, use_func_name=use_func_name)
 
-   result_txt.append('\n\n\n================= DisassembleIT ================= DisassembleIT  ================= DisassembleIT  =================\n')
-   for table in speedit_func_disassemble_list(func_dict, use_func_name=True):
-      result_txt.append('\n\n')
-      result_txt.extend(table)
+   result_txt += '\n\n\n================= DisassembleIT ================= DisassembleIT  ================= DisassembleIT  =================\n'
+   result_txt += speedit_disassemble(func_dict, use_func_name=use_func_name)
 
-   return '\n'.join(result_txt)
+   return result_txt

@@ -1,23 +1,38 @@
-xxxx-xx-xx    3.0.1
+xxxx-xx-xx    4.0.1
 -------------------
    * FIXED ERRORS:
    * NEW ADDED:
-      - Example25IsInstanceVsClassDictLookUpVsLenTuple.py
-      - Example26IfVsTryGetDictValue.py
-      - Example27FindDuplicates.py
-      - Example28ListComprehensionVsGenerator.py
-      - Example29MapForLoopMultipleNestedComprehension.py
-      - Example30MapForLoopListComprehension1.py
-      - Example30MapForLoopListComprehension2.py
-      - Example30MapForLoopListComprehension3.py
-      - Example30MapForLoopListComprehension4.py
-      - Example31ListSliceVsDelFirstLastElement.py
-      
    * UPDATED, IMPROVEMENTS:
    * REMOVED:
    * DOCUMENTATION:
    * OTHER CHANGES:
 
+2014-07-21    4.0.0
+-------------------
+   * Release v. 4.0.0
+   `SpeedIT` as of version 4.0 (20140721)` is not backwards compatible
+
+   * UPDATED, IMPROVEMENTS:
+      - BenchmarkIT.py:
+         - added option to run only once: run_sec=-1
+         - added option to return the inner code-block: run_sec=None
+         - added argument: to repeat: run the whole setup multiple times: repeat=3
+         - added argument: to enable garbage collection during the timing: with_gc=True
+         - added argument: rank_by: best, average
+      - DisassembleIT.py
+         - removed unused arguments
+      - main functions: all return now a ready txt string instead of a list of lines
+         - to reflect that renamed them:
+            - speed_it > speed_it,
+            - speedit_func_benchmark_list > speedit_benchmark,
+            - speedit_func_disassemble_list > speedit_disassemble,
+            - speedit_func_line_memory_list > speedit_line_memory,
+            - speedit_func_profile_list > speedit_profile
+      - Benchmark-IT, Profile-IT, Line-Memory-Profile-IT, Disassemble-IT
+         - reorganized keyword arguments so that the common once are in front
+
+   * REMOVED:
+      - couple of Examples
 
 2014-07-10    3.0.0
 -------------------

@@ -20,7 +20,7 @@ ROOT_PACKAGE_PATH = join(PROJECT_ROOT, ROOT_PACKAGE_NAME)
 
 syspath.insert(0, PROJECT_ROOT)
 
-from SpeedIT.LineMemoryProfileIT import speedit_func_line_memory_list
+from SpeedIT.LineMemoryProfileIT import speedit_line_memory
 
 
 def my_func(ab, mul=5):
@@ -55,16 +55,9 @@ def main():
       'example_argument_substitute_func': (example_argument_substitute_func, [10, 'example'], {'argument1': 'argument1_value', 'argument2': 'argument2_value', 'loops': 1})
    }
 
-   line_memory_profile_result = speedit_func_line_memory_list(func_dict)
-   for table in line_memory_profile_result:
-      print('\n\n')
-      print('\n'.join(table))
-
    with open('result_output/Example4LineMemoryProfileIT2.txt', 'w') as file_:
       file_.write('\n\n Example4LineMemoryProfileIT2.py output\n\n')
-      for table in line_memory_profile_result:
-         file_.write('\n\n')
-         file_.write('\n'.join(table))
+      file_.write(speedit_line_memory(func_dict))
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

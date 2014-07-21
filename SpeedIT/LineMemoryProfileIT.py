@@ -149,19 +149,20 @@ def memory_profile_it(mem_profiler):
                max_mem = mem
             mem_increment = mem - mem_old
             mem_old = mem
-         dict_ = {}
-         dict_['line_num'] = '{}'.format(line)
-         dict_['memory_usage'] = '{:.{}f} MiB'.format(mem, memory_precision)
-         dict_['increment_memory_usage'] = '{:.{}f} MiB'.format(mem_increment, memory_precision)
-         dict_['line'] = all_lines[line - 1].strip()
+         dict_ = {
+            'line_num': '{}'.format(line),
+            'memory_usage': '{:.{}f} MiB'.format(mem, memory_precision),
+            'increment_memory_usage': '{:.{}f} MiB'.format(mem_increment, memory_precision),
+            'line': all_lines[line - 1].strip()
+         }
          table.append(dict_)
 
    max_mem = '{:.{}f} MiB'.format(max_mem, memory_precision)
    return max_mem, table
 
 
-def speedit_func_line_memory_list(func_dict, use_func_name=True):
-   """ Returns a list of table lines for each function in func_dict: table format is conform with reStructuredText
+def speedit_line_memory(func_dict, use_func_name=True):
+   """ Returns one txt string for: table format is conform with reStructuredText
 
    Args:
       func_dict (dict): mapping function names to functions
@@ -172,7 +173,7 @@ def speedit_func_line_memory_list(func_dict, use_func_name=True):
       use_func_name (bool): if True the function name will be used in the output `name column` if False the `func_dict key` will be used in the the output `name column`
 
    Returns:
-      list: of a list of table lines for each function in func_dict: table format is conform with reStructuredText
+      str: ready to print or write to file: table format is conform with reStructuredText
 
          - line num: code line number
          - memory_usage: memory_usage
@@ -180,7 +181,7 @@ def speedit_func_line_memory_list(func_dict, use_func_name=True):
          - line: code line
 
    """
-   table_list = []
+   all_final_lines = []
    header_mapping = [
       ('line num', 'line_num'),
       ('memory_usage', 'memory_usage'),
@@ -203,5 +204,10 @@ def speedit_func_line_memory_list(func_dict, use_func_name=True):
       # add Title Summary
       title_line = 'SpeedIT: `LineMemoryProfileIT` name: <{}> max memory: <{}> '.format(name, max_mem)
 
-      table_list.append(get_table_rst_formatted_lines(table, header_mapping, title_line))
-   return table_list
+      all_final_lines.extend(get_table_rst_formatted_lines(table, header_mapping, title_line))
+      all_final_lines.extend([
+         '',
+         '',
+      ])
+
+   return '\n'.join(all_final_lines)

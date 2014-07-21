@@ -40,10 +40,10 @@ def profile_it(func, func_positional_arguments, func_keyword_arguments, name):
    total_time = 0
    table = []
    for func_tmp, (cc, nc, tt, ct, callers) in profiler.stats.items():
-      temp_dict = {}
-      temp_dict['number_of_calls'] = '{:,}'.format(cc) if cc == nc else '{:,}/{:,}'.format(cc, nc)
-      temp_dict['func_time'] = tt
-      temp_dict['func_cumulative_time'] = ct
+      temp_dict = {
+         'number_of_calls': '{:,}'.format(cc) if cc == nc else '{:,}/{:,}'.format(cc, nc),
+         'func_time': tt, 'func_cumulative_time': ct
+      }
 
       if func_tmp[0] == '~':
          # exclude the profiler.enable()/disable() functions
@@ -76,21 +76,22 @@ def profile_it(func, func_positional_arguments, func_keyword_arguments, name):
    return summary_dict, table
 
 
-def speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=True):
-   """ Returns a list of table lines for each function in func_dict: table format is conform with reStructuredText
+def speedit_profile(func_dict, use_func_name=True, output_in_sec=False):
+   """ Returns one txt string for: table format is conform with reStructuredText
 
    Args:
       func_dict (dict): mapping function names to functions
          value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
-      out_put_in_sec (int): if true the output is keep in seconds if false it is transformed to:
+      use_func_name (bool): if True the function name will be used in the output `name` if False the `func_dict key` will be used in the the output `name`
+
+      output_in_sec (int): if true the output is keep in seconds if false it is transformed to:
          second         (s)
          millisecond    (ms)  One thousandth of one second
          microsecond    (µs)  One millionth of one second
          nanosecond     (ns)  One billionth of one second
-      use_func_name (bool): if True the function name will be used in the output `name` if False the `func_dict key` will be used in the the output `name`
 
    Returns:
-      list: of a list of table lines for each function in func_dict: table format is conform with reStructuredText
+      str: ready to print or write to file: table format is conform with reStructuredText
 
          - rank: starts with the part which takes the longest
          - compare: % of the total execution time
@@ -98,7 +99,7 @@ def speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=Tru
          - number_of_calls: the number of calls
          - func_txt: provides the respective data of each function
    """
-   table_list = []
+   all_final_lines = []
    for func_name, (function_, func_positional_arguments, func_keyword_arguments) in sorted(func_dict.items()):
       if use_func_name:
          name = getattr(function_, "__name__", function_)
@@ -113,7 +114,7 @@ def speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=Tru
          for idx, dict_ in enumerate(table):
             dict_['compare'] = 'TOO-FAST-NOT-MEASURED'
             dict_['rank'] = '{:,}'.format(idx + 1)
-            if out_put_in_sec:
+            if output_in_sec:
                dict_['func_time'] = '{:.11f}'.format(dict_['func_time'])
             else:
                dict_['func_time'] = format_time(dict_['func_time'])
@@ -122,7 +123,7 @@ def speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=Tru
          for idx, dict_ in enumerate(table):
             dict_['compare'] = '{:,.3f}'.format((dict_['func_time'] * 100.0) / compare_reference)
             dict_['rank'] = '{:,}'.format(idx + 1)
-            if out_put_in_sec:
+            if output_in_sec:
                dict_['func_time'] = '{:.11f}'.format(dict_['func_time'])
             else:
                dict_['func_time'] = format_time(dict_['func_time'])
@@ -136,11 +137,15 @@ def speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=Tru
       ]
 
       # add Title Summary
-      if out_put_in_sec:
+      if output_in_sec:
          title_line = 'SpeedIT: `ProfileIT` name: <{}> total_calls: <{}> primitive_calls: <{}> total_time: <{:.11f}>'.format(summary_dict['name'], summary_dict['total_calls'], summary_dict['primitive_calls'], summary_dict['total_time'])
       else:
          title_line = 'SpeedIT: `ProfileIT` name: <{}> total_calls: <{}> primitive_calls: <{}> total_time: <{}>'.format(summary_dict['name'], summary_dict['total_calls'], summary_dict['primitive_calls'], format_time(summary_dict['total_time']))
 
-      table_list.append(get_table_rst_formatted_lines(table, header_mapping, title_line))
+      all_final_lines.extend(get_table_rst_formatted_lines(table, header_mapping, title_line))
+      all_final_lines.extend([
+         '',
+         '',
+      ])
 
-   return table_list
+   return '\n'.join(all_final_lines)

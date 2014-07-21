@@ -33,7 +33,7 @@ from SpeedIT import Version
 extensions = [
    'sphinx.ext.autodoc',
    'sphinx.ext.coverage',
-   #'sphinx.ext.napoleon',   for new sphinx 3+
+   # 'sphinx.ext.napoleon',   for new sphinx 3+
    'sphinxcontrib.napoleon'
 ]
 
@@ -45,7 +45,7 @@ napoleon_numpy_docstring = False
 source_suffix = '.rst'
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+# source_encoding = 'utf-8-sig'
 
 # The master toctree document.
 master_doc = 'index'
@@ -94,7 +94,7 @@ html_logo = 'img/peter1000.png'
 html_last_updated_fmt = '%b %d, %Y'
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
 
 # If false, no module index is generated.
 html_domain_indices = True

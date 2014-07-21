@@ -22,7 +22,7 @@ ROOT_PACKAGE_PATH = join(PROJECT_ROOT, ROOT_PACKAGE_NAME)
 
 syspath.insert(0, PROJECT_ROOT)
 
-from SpeedIT.ProfileIT import speedit_func_profile_list
+from SpeedIT.ProfileIT import speedit_profile
 
 
 def helper_fnouter(y_):
@@ -111,16 +111,9 @@ def main():
       'my_func': (my_func, [27], {'mul': 100}),
    }
 
-   profile_result = speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=True)
-   for table in profile_result:
-      print('\n\n')
-      print('\n'.join(table))
-
    with open('result_output/Example3ProfileIT.txt', 'w') as file_:
       file_.write('\n\n Example3ProfileIT.py output\n\n')
-      for table in profile_result:
-         file_.write('\n\n')
-         file_.write('\n'.join(table))
+      file_.write(speedit_profile(func_dict, output_in_sec=False, use_func_name=True))
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

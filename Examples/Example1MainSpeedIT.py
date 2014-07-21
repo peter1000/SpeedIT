@@ -116,13 +116,9 @@ def main():
       'from __main__ import helper_fnouter'
    ]
 
-   speed_it_result = speed_it(func_dict, setup_line_list, run_sec=1, out_put_in_sec=False, use_func_name=True)
-   print(speed_it_result)
-
    with open('result_output/Example1MainSpeedIT.txt', 'w') as file_:
       file_.write('\n\n Example1MainSpeedIT.py output\n\n')
-      file_.write(speed_it_result)
-
+      file_.write(speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=1))
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 if __name__ == '__main__':

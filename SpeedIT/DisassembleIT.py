@@ -10,12 +10,11 @@ from SpeedIT.Utils import (
 )
 
 
-def dis_it(func, name):
+def dis_it(func):
    """ Returns a dictionary with the disassembled result
 
    Args:
       func (function):
-      name: the name used for the output `name` part
 
    Returns:
       list: table = list_of_dictionaries
@@ -64,8 +63,8 @@ def dis_it(func, name):
    return table
 
 
-def speedit_func_disassemble_list(func_dict, use_func_name=True):
-   """ Returns a list of table lines for each function in func_dict: table format is conform with reStructuredText
+def speedit_disassemble(func_dict, use_func_name=True):
+   """ Returns one txt string for: table format is conform with reStructuredText
 
    .. note:: func_positional_arguments, func_keyword_arguments of the func_dict are not actually used but are required so it works similar to all `SpeedIT` modules
 
@@ -75,7 +74,7 @@ def speedit_func_disassemble_list(func_dict, use_func_name=True):
       use_func_name (bool): if True the function name will be used in the output `name` if False the `func_dict key` will be used in the the output `name`
 
    Returns:
-      list: of a list of table lines for each function in func_dict: table format is conform with reStructuredText
+      str: ready to print or write to file: table format is conform with reStructuredText
 
          - starts_line: line started by this opcode (if any), otherwise None
          - offset: start index of operation within bytecode sequence
@@ -86,14 +85,14 @@ def speedit_func_disassemble_list(func_dict, use_func_name=True):
          - is_jump_target: True if other code jumps to here, otherwise False
          - line: code line
    """
-   table_list = []
+   all_final_lines = []
    for func_name, (function_, func_positional_arguments, func_keyword_arguments) in sorted(func_dict.items()):
       if use_func_name:
          name = getattr(function_, "__name__", function_)
       else:
          name = func_name
 
-      table = dis_it(function_, name)
+      table = dis_it(function_)
 
       header_mapping = [
          ('starts_line', 'starts_line'),
@@ -109,6 +108,10 @@ def speedit_func_disassemble_list(func_dict, use_func_name=True):
       # add Title Summary
       title_line = 'SpeedIT: `DisassembleIT` name: <{}> '.format(name)
 
-      table_list.append(get_table_rst_formatted_lines(table, header_mapping, title_line))
+      all_final_lines.extend(get_table_rst_formatted_lines(table, header_mapping, title_line))
+      all_final_lines.extend([
+         '',
+         '',
+      ])
 
-   return table_list
+   return '\n'.join(all_final_lines)

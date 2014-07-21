@@ -20,7 +20,7 @@ ROOT_PACKAGE_PATH = join(PROJECT_ROOT, ROOT_PACKAGE_NAME)
 
 syspath.insert(0, PROJECT_ROOT)
 
-from SpeedIT.ProfileIT import speedit_func_profile_list
+from SpeedIT.ProfileIT import speedit_profile
 
 
 # get a list of text lines to iterate over and split by double colon
@@ -72,17 +72,9 @@ def main():
       'split_check_first_notfound': (split_check_first_notfound, [], {}),
    }
 
-   # run ProfileIT and print the result to the terminal or write it to file
-   profile_result = speedit_func_profile_list(func_dict, out_put_in_sec=False, use_func_name=True)
-   for table in profile_result:
-      print('\n\n')
-      print('\n'.join(table))
-
    with open('result_output/ReadmeExampleProfileIT.txt', 'w') as file_:
       file_.write('\n\n ReadmeExampleProfileIT.py output\n\n')
-      for table in profile_result:
-         file_.write('\n\n')
-         file_.write('\n'.join(table))
+      file_.write(speedit_profile(func_dict, output_in_sec=False, use_func_name=True))
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

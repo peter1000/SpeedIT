@@ -22,7 +22,7 @@ ROOT_PACKAGE_PATH = join(PROJECT_ROOT, ROOT_PACKAGE_NAME)
 
 syspath.insert(0, PROJECT_ROOT)
 
-from SpeedIT.DisassembleIT import speedit_func_disassemble_list
+from SpeedIT.DisassembleIT import speedit_disassemble
 
 
 def helper_fnouter(y_):
@@ -111,16 +111,9 @@ def main():
       'my_func': (my_func, [27], {'mul': 100}),
    }
 
-   disassemble_result = speedit_func_disassemble_list(func_dict, use_func_name=True)
-   for table in disassemble_result:
-      print('\n\n')
-      print('\n'.join(table))
-
    with open('result_output/Example5DisassembleIT.txt', 'w') as file_:
       file_.write('\n\n Example5DisassembleIT.py output\n\n')
-      for table in disassemble_result:
-         file_.write('\n\n')
-         file_.write('\n'.join(table))
+      file_.write(speedit_disassemble(func_dict, use_func_name=True))
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

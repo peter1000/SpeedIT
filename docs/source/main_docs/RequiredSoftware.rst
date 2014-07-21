@@ -24,11 +24,12 @@ NOTE: other versions might also work but this are the once used for development
 
    - `<http://pythonhosted.org/setuptools/>`_
 
+
 - psutil >= 2.1.1  (retrieving information on running processes and system utilization (CPU, memory, disks, network))
 
    - `<http://code.google.com/p/psutil/>`_
-
-
+   
+   
 Additional Required Software
 ============================
 
@@ -66,7 +67,7 @@ Additional Recommended Software
    - `<https://pypi.python.org/pypi/pip/>`_
    - `<https://github.com/pypa/pip/>`_
 
-- PyCharm Community Edition >= 3.4 138.SNAPSHOT (20140626)  (Excellent IDE for the Python language)
+- PyCharm Community Edition >= 3.4 138.SNAPSHOT (20140721)  (Excellent IDE for the Python language)
 
    - `<http://www.jetbrains.com/pycharm/>`_
 
@@ -83,5 +84,4 @@ Additional Recommended Software
 (c) 2014, `peter1000` https://github.com/peter1000
 All rights reserved.
 
-|
 |
