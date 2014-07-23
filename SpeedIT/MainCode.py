@@ -6,7 +6,7 @@ from SpeedIT.LineMemoryProfileIT import speedit_line_memory
 from SpeedIT.ProfileIT import speedit_profile
 
 
-def speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=3):
+def speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, max_slashes_profile_info=2, with_gc=False, rank_by='best', run_sec=1, repeat=3):
    """ Returns one txt string for all: Benchmark-IT, Profile-IT, Line-Memory-Profile-IT, Disassemble-IT: format is conform with reStructuredText
 
    Usage:
@@ -40,18 +40,20 @@ def speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False
          microsecond    (µs)  One millionth of one second
          nanosecond     (ns)  One billionth of one second
 
-      with_gc (bool): used by `BenchmarkIT`: if True gc is kept on during timing: if False: turns off garbage collection during the timing
+      max_slashes_profile_info (int): used by `Profile-IT`: to adjust max path levels in the profile info
 
-      rank_by (str): used by `BenchmarkIT`: `best` or `average`
+      with_gc (bool): used by `Benchmark-IT`: if True gc is kept on during timing: if False: turns off garbage collection during the timing
 
-      run_sec (float or -1 or None): used by `BenchmarkIT`: the number of loops per run is scaled to approximately fit the run_sec
+      rank_by (str): used by `Benchmark-IT`: `best` or `average`
+
+      run_sec (float or -1 or None): used by `Benchmark-IT`: the number of loops per run is scaled to approximately fit the run_sec
 
             - if run_sec is -1: then the generated function source code is only run once
 
             - if run_sec is None:  then the generated function source code is only printed
                this is mainly useful to see the exact final `func code block` which will be timed.      output_in_sec (int): if true the output is keep in seconds if false it is transformed to: BenchmarkIT and ProfileIT
 
-      repeat (int): used by `BenchmarkIT`: how often everything is repeated again
+      repeat (int): used by `Benchmark-IT`: how often everything is repeated again
          This is a convenience variable that calls the whole setup repeatedly
 
    Returns:
@@ -61,7 +63,7 @@ def speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False
    result_txt += speedit_benchmark(func_dict, setup_line_list, use_func_name=use_func_name, output_in_sec=output_in_sec, with_gc=with_gc, rank_by=rank_by, run_sec=run_sec, repeat=repeat)
 
    result_txt += '\n\n\n================= ProfileIT ================= ProfileIT  ================= ProfileIT  =================\n'
-   result_txt += speedit_profile(func_dict, use_func_name=use_func_name, output_in_sec=output_in_sec)
+   result_txt += speedit_profile(func_dict, use_func_name=use_func_name, output_in_sec=output_in_sec, max_slashes_profile_info=max_slashes_profile_info)
 
    result_txt += '\n\n\n================= LineMemoryProfileIT ================= LineMemoryProfileIT  ================= LineMemoryProfileIT  =================\n'
    result_txt += speedit_line_memory(func_dict, use_func_name=use_func_name)

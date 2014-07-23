@@ -19,7 +19,7 @@ from SpeedIT.ProjectErr import Err
 from SpeedIT.Utils import get_table_rst_formatted_lines
 
 
-class LineMemoryProfiler(object):
+class _LineMemoryProfiler(object):
    """ A profiler that records the amount of memory for each line
 
    This code is a reduced version of parts of: https://github.com/fabianp/memory_profiler
@@ -47,7 +47,7 @@ class LineMemoryProfiler(object):
       try:
          code = func.__code__
       except AttributeError:
-         Err('LineMemoryProfiler', 'Could not extract a code object for the object: <{!r}>'.format(func))
+         Err('_LineMemoryProfiler', 'Could not extract a code object for the object: <{!r}>'.format(func))
       if code not in self.code_map:
          self.code_map[code] = {}
       func_ = self.wrap_function(func)
@@ -113,11 +113,11 @@ class LineMemoryProfiler(object):
       return self.trace_memory_usage
 
 
-def memory_profile_it(mem_profiler):
+def _memory_profile_it(mem_profiler):
    """ Returns a dictionary with the memory profile result
 
    Args:
-      mem_profiler (class): instance of `SpeedIT.MemIt.LineMemoryProfiler`
+      mem_profiler (class): instance of `SpeedIT.MemIt._LineMemoryProfiler`
 
    Returns:
       tuple: format: (max_mem, table): table = list_of_dictionaries
@@ -134,7 +134,7 @@ def memory_profile_it(mem_profiler):
       if filename.endswith(('.pyc', '.pyo')):
          filename = filename[:-1]
       if not path.exists(filename):
-         print('\nmemory_profile_it() ERROR: Could not find file: {}'.format(filename))
+         print('\n_memory_profile_it() ERROR: Could not find file: {}'.format(filename))
          continue
       all_lines = getlines(filename)
       sub_lines = getblock(all_lines[code.co_firstlineno - 1:])
@@ -194,12 +194,12 @@ def speedit_line_memory(func_dict, use_func_name=True):
          name = getattr(function_, "__name__", function_)
       else:
          name = func_name
-      profiler = LineMemoryProfiler()
+      profiler = _LineMemoryProfiler()
       # in case we have a key: 'loops' - overwrite it with 1
       if 'loops' in func_keyword_arguments:
          func_keyword_arguments['loops'] = 1
       profiler(function_)(*func_positional_arguments, **func_keyword_arguments)
-      max_mem, table = memory_profile_it(profiler)
+      max_mem, table = _memory_profile_it(profiler)
 
       # add Title Summary
       title_line = 'SpeedIT: `LineMemoryProfileIT` name: <{}> max memory: <{}> '.format(name, max_mem)

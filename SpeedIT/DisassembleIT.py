@@ -10,7 +10,7 @@ from SpeedIT.Utils import (
 )
 
 
-def dis_it(func):
+def _dis_it(func):
    """ Returns a dictionary with the disassembled result
 
    Args:
@@ -27,7 +27,7 @@ def dis_it(func):
    if filename.endswith(('.pyc', '.pyo')):
       filename = filename[:-1]
    if not path.exists(filename):
-      raise Err('dis_it', 'ERROR: Could not find file: {}'.format(filename))
+      raise Err('_dis_it', 'ERROR: Could not find file: {}'.format(filename))
    all_lines = getlines(filename)
 
    for instr in bytecode:
@@ -92,7 +92,7 @@ def speedit_disassemble(func_dict, use_func_name=True):
       else:
          name = func_name
 
-      table = dis_it(function_)
+      table = _dis_it(function_)
 
       header_mapping = [
          ('starts_line', 'starts_line'),

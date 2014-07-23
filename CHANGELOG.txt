@@ -1,4 +1,4 @@
-xxxx-xx-xx    4.0.1
+xxxx-xx-xx    4.1.1
 -------------------
    * FIXED ERRORS:
    * NEW ADDED:
@@ -7,6 +7,18 @@ xxxx-xx-xx    4.0.1
    * DOCUMENTATION:
    * OTHER CHANGES:
 
+
+2014-07-23    4.1.0
+-------------------
+   * Release v. 4.1.0
+   
+   * NEW ADDED:
+      - ProfileIT.py:
+         - added argument: max_slashes_profile_info: to adjust max path levels in the profile info
+      
+   * UPDATED, IMPROVEMENTS:
+      - adjusted some internal used function names
+      
 2014-07-21    4.0.0
 -------------------
    * Release v. 4.0.0

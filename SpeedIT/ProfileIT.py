@@ -10,7 +10,7 @@ from SpeedIT.Utils import (
 )
 
 
-def profile_it(func, func_positional_arguments, func_keyword_arguments, name):
+def _profile_it(func, func_positional_arguments, func_keyword_arguments, name, max_slashes_profile_info):
    """ Returns a dictionary with the profile result: the function runs only once.
 
    .. note:: excludes a couple of not relative functions/methods
@@ -23,7 +23,8 @@ def profile_it(func, func_positional_arguments, func_keyword_arguments, name):
       func (function):
       func_positional_arguments (list): positional arguments for the function
       func_keyword_arguments (dict): any keyword arguments for the function
-      name: the name used for the output `name` part
+      name (str): the name used for the output `name` part
+      max_slashes_profile_info (int): to adjust max path levels in the profile info
 
    Returns:
       tuple: format: (summary_dict, table): table = list_of_dictionaries (sorted profile result lines dict)
@@ -56,7 +57,14 @@ def profile_it(func, func_positional_arguments, func_keyword_arguments, name):
          if func_tmp[2] == 'runcall':
             if 'cProfile' in func_tmp[0]:
                continue
-         temp_dict['func_txt'] = '{}:{}({})'.format(func_tmp[0], func_tmp[1], func_tmp[2])
+
+         # adjust path levels
+         temp_path_file_ect = func_tmp[0]
+         temp_slashes = temp_path_file_ect.count('/')
+         if temp_slashes > max_slashes_profile_info:
+            temp_dict['func_txt'] = '{}:{}({})'.format(temp_path_file_ect.split('/', temp_slashes - max_slashes_profile_info)[-1], func_tmp[1], func_tmp[2])
+         else:
+            temp_dict['func_txt'] = '{}:{}({})'.format(temp_path_file_ect, func_tmp[1], func_tmp[2])
 
       table.append(temp_dict)
 
@@ -76,7 +84,7 @@ def profile_it(func, func_positional_arguments, func_keyword_arguments, name):
    return summary_dict, table
 
 
-def speedit_profile(func_dict, use_func_name=True, output_in_sec=False):
+def speedit_profile(func_dict, use_func_name=True, output_in_sec=False, max_slashes_profile_info=2):
    """ Returns one txt string for: table format is conform with reStructuredText
 
    Args:
@@ -89,6 +97,7 @@ def speedit_profile(func_dict, use_func_name=True, output_in_sec=False):
          millisecond    (ms)  One thousandth of one second
          microsecond    (µs)  One millionth of one second
          nanosecond     (ns)  One billionth of one second
+      max_slashes_profile_info (int): to adjust max path levels in the profile info
 
    Returns:
       str: ready to print or write to file: table format is conform with reStructuredText
@@ -105,7 +114,7 @@ def speedit_profile(func_dict, use_func_name=True, output_in_sec=False):
          name = getattr(function_, "__name__", function_)
       else:
          name = func_name
-      summary_dict, table = profile_it(function_, func_positional_arguments, func_keyword_arguments, name)
+      summary_dict, table = _profile_it(function_, func_positional_arguments, func_keyword_arguments, name, max_slashes_profile_info)
 
       table = sorted(table, key=itemgetter('func_time'), reverse=True)
       compare_reference = summary_dict['total_time']

@@ -118,7 +118,7 @@ def main():
 
    with open('result_output/Example1MainSpeedIT.txt', 'w') as file_:
       file_.write('\n\n Example1MainSpeedIT.py output\n\n')
-      file_.write(speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=1))
+      file_.write(speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, max_slashes_profile_info=2, with_gc=False, rank_by='best', run_sec=1, repeat=1))
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 if __name__ == '__main__':

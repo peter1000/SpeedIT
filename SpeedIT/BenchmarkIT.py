@@ -11,7 +11,7 @@ from SpeedIT.Utils import (
 )
 
 
-class TimeIT(object):
+class _TimeIT(object):
    """ Class for timing execution speed of function code.
 
    Partially based on code from python timeit.py
@@ -75,7 +75,7 @@ class TimeIT(object):
          _ns = {}
          self.src = self.__get_final_inner_function()
          if self.run_sec is not None and self.run_sec != -1 and self.run_sec < 0.1:
-            raise Err('TimeIT.__init__()', 'run_sec: <{:.1f}> must be at least <0.1 second> or <-1 to run it once> or <None to print the `func code block`>'.format(self.run_sec))
+            raise Err('_TimeIT.__init__()', 'run_sec: <{:.1f}> must be at least <0.1 second> or <-1 to run it once> or <None to print the `func code block`>'.format(self.run_sec))
 
          _code = compile(self.src, 'benchmarkit-src', "exec")
          exec(_code, globals(), _ns)
@@ -186,7 +186,7 @@ class TimeIT(object):
 
                line_indentation = len(rstrip_line) - len(stripped_line)
                if line_indentation % indent_ != 0:
-                  raise Err('TimeIT.get_final_inner_function', 'ERROR: indentation must be a multiple of the second function line: <{}>\n  seems we encountered a wrong indented line: line_indentation: <{}>\n {}'.format(indent_, line_indentation, line_orig))
+                  raise Err('_TimeIT.get_final_inner_function', 'ERROR: indentation must be a multiple of the second function line: <{}>\n  seems we encountered a wrong indented line: line_indentation: <{}>\n {}'.format(indent_, line_indentation, line_orig))
                line_indentation_level = int((line_indentation - func_def_indent) / indent_) + 1  # need one extra level
 
                adjusted_func_code_line.append(('   ' * line_indentation_level) + stripped_line)
@@ -213,7 +213,7 @@ class TimeIT(object):
                parameter_line = '{} = {}'.format(param, value_to_set)
             final_param_line.append(('   ' * 2) + parameter_line)
             # TODO: From docs: 3.4 Python has no explicit syntax for defining positional-only parameters, but many built-in and extension module functions (especially those that accept only one or two parameters) accept them.
-            raise Err('TimeIT.get_final_inner_function()', 'POSITIONAL_ONLY !! not sure what to do .. check in future if needed: param: <{}> value.kind: <{}>'.format(param, value.kind))
+            raise Err('_TimeIT.get_final_inner_function()', 'POSITIONAL_ONLY !! not sure what to do .. check in future if needed: param: <{}> value.kind: <{}>'.format(param, value.kind))
          elif value.kind == value.VAR_POSITIONAL:  # do the remaining POSITIONAL arguments
             parameter_line = '{} = {}'.format(param, self.args_list)
             final_param_line.append(('   ' * 2) + parameter_line)
@@ -403,7 +403,7 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
             name = getattr(function_, "__name__", function_)
          else:
             name = func_name
-         benchmark_result = TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, run_sec, name).benchmark_it(with_gc)
+         benchmark_result = _TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, run_sec, name).benchmark_it(with_gc)
          all_final_lines.extend([
             '===================== function name: <{}>'.format(func_name),
             '',
@@ -421,7 +421,7 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
                name = getattr(function_, "__name__", function_)
             else:
                name = func_name
-            benchmark_result = TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, run_sec, name).benchmark_it(with_gc=with_gc)
+            benchmark_result = _TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, run_sec, name).benchmark_it(with_gc=with_gc)
             table.append(benchmark_result)
 
          if rank_by == 'best':

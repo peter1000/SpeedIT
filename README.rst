@@ -178,7 +178,7 @@ Uses pythons cProfiler: *most of the things are similar to what we saw above.*
 
    with open('result_output/ReadmeExampleProfileIT.txt', 'w') as file_:
       file_.write('\n\n ReadmeExampleProfileIT.py output\n\n')
-      file_.write(speedit_profile(func_dict, output_in_sec=False, use_func_name=True))
+      file_.write(speedit_profile(func_dict, output_in_sec=False, use_func_name=True, max_slashes_profile_info=2))
 
 
 **RESULT** is for each function a separate table which format is conform with reStructuredText
