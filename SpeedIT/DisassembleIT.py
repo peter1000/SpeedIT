@@ -5,9 +5,7 @@ from linecache import getlines
 from os import path
 
 from SpeedIT.ProjectErr import Err
-from SpeedIT.Utils import (
-   get_table_rst_formatted_lines
-)
+from SpeedIT.Utils import get_table_rst_formatted_lines
 
 
 def _dis_it(func):

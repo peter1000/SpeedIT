@@ -99,7 +99,9 @@ def main():
    # https://github.com/thisismess/python-benchmark/blob/master/examples/benchmarkDictSorting.py
    data = dict(zip(range(1000), range(1000)))
 
+   # defining the: func_dict mapping
    func_dict = {
+      # value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
       'example_pep265': (example_pep265, [data], {}),
       'example_stupid': (example_stupid, [data], {}),
       'example_list_expansion': (example_list_expansion, [data], {}),
@@ -111,9 +113,11 @@ def main():
       'my_func': (my_func, [27], {'mul': 100}),
    }
 
+   result = speedit_disassemble(func_dict, use_func_name=True)
+   
    with open('result_output/Example5DisassembleIT.txt', 'w') as file_:
       file_.write('\n\n Example5DisassembleIT.py output\n\n')
-      file_.write(speedit_disassemble(func_dict, use_func_name=True))
+      file_.write(result)
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

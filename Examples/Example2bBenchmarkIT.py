@@ -99,7 +99,9 @@ def main():
    # https://github.com/thisismess/python-benchmark/blob/master/examples/benchmarkDictSorting.py
    data = dict(zip(range(1000), range(1000)))
 
+   # defining the: func_dict mapping
    func_dict = {
+      # value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
       'example_pep265': (example_pep265, [data], {}),
       'example_stupid': (example_stupid, [data], {}),
       'example_list_expansion': (example_list_expansion, [data], {}),
@@ -115,17 +117,16 @@ def main():
       'from random import shuffle',
       'from __main__ import helper_fnouter'
    ]
-
-   check_run_sec = 1
-   with open('result_output/Example2BenchmarkIT.txt', 'w') as file_:
-      file_.write('\n\n Example2BenchmarkIT.py output\n\n')
-      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=2))
+   
+   with open('result_output/Example2bBenchmarkIT.txt', 'w') as file_:
+      file_.write('\n\n Example2bBenchmarkIT.py output\n\n')
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, benchmarkit__with_gc=False, benchmarkit__check_too_fast=True, benchmarkit__rank_by='best', benchmarkit__run_sec=1, benchmarkit__repeat=2))
       file_.write('\n\n')
-      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='average', run_sec=1, repeat=2))
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, benchmarkit__with_gc=False, benchmarkit__check_too_fast=True, benchmarkit__rank_by='average', benchmarkit__run_sec=1, benchmarkit__repeat=2))
       file_.write('\n\n')
-      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=True, rank_by='best', run_sec=1, repeat=1))
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, benchmarkit__with_gc=True, benchmarkit__check_too_fast=True, benchmarkit__rank_by='best', benchmarkit__run_sec=1, benchmarkit__repeat=1))
       file_.write('\n\n')
-      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=-1, repeat=5))
+      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, benchmarkit__with_gc=False, benchmarkit__check_too_fast=True, benchmarkit__rank_by='best', benchmarkit__run_sec=-1, benchmarkit__repeat=5))
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 if __name__ == '__main__':

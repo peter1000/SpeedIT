@@ -127,6 +127,7 @@ def _memory_profile_it(mem_profiler):
    max_mem = 0
    for code in mem_profiler.code_map:
       lines = mem_profiler.code_map[code]
+
       if not lines:
          # .. measurements are empty ..
          continue
@@ -138,7 +139,6 @@ def _memory_profile_it(mem_profiler):
          continue
       all_lines = getlines(filename)
       sub_lines = getblock(all_lines[code.co_firstlineno - 1:])
-
       mem_old = lines[min(lines.keys())]
       for line in range(code.co_firstlineno, code.co_firstlineno + len(sub_lines)):
          mem = 0.0

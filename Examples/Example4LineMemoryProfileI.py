@@ -48,16 +48,19 @@ def example_argument_substitute_func(*args, **kwargs):
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 def main():
-   pass
+   # defining the: func_dict mapping
    func_dict = {
+      # value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
       'my_func': (my_func, [27], {'mul': 100}),
       'my_func2': (my_func2, [], {}),
       'example_argument_substitute_func': (example_argument_substitute_func, [10, 'example'], {'argument1': 'argument1_value', 'argument2': 'argument2_value', 'loops': 1})
    }
 
+   result = speedit_line_memory(func_dict, use_func_name=True)
+   
    with open('result_output/Example4LineMemoryProfileIT2.txt', 'w') as file_:
       file_.write('\n\n Example4LineMemoryProfileIT2.py output\n\n')
-      file_.write(speedit_line_memory(func_dict))
+      file_.write(result)
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

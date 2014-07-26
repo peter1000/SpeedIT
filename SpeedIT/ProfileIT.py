@@ -5,12 +5,12 @@ from cProfile import Profile
 
 from SpeedIT.ProjectErr import Err
 from SpeedIT.Utils import (
-   get_table_rst_formatted_lines,
    format_time,
+   get_table_rst_formatted_lines
 )
 
 
-def _profile_it(func, func_positional_arguments, func_keyword_arguments, name, max_slashes_profile_info):
+def _profile_it(func, func_positional_arguments, func_keyword_arguments, name, profileit__max_slashes_fileinfo, profileit__repeat):
    """ Returns a dictionary with the profile result: the function runs only once.
 
    .. note:: excludes a couple of not relative functions/methods
@@ -24,16 +24,25 @@ def _profile_it(func, func_positional_arguments, func_keyword_arguments, name, m
       func_positional_arguments (list): positional arguments for the function
       func_keyword_arguments (dict): any keyword arguments for the function
       name (str): the name used for the output `name` part
-      max_slashes_profile_info (int): to adjust max path levels in the profile info
+      profileit__max_slashes_fileinfo (int): to adjust max path levels in the profile info
+      profileit__repeat (int): how often the function is repeated: the result will be the sum of all: similar to the code below
+
+         .. code-block:: python
+
+            for repeat in range(profileit__repeat):
+               profiler.enable()
+               profiler.runcall(func, *func_positional_arguments, **func_keyword_arguments)
+               profiler.disable()
 
    Returns:
       tuple: format: (summary_dict, table): table = list_of_dictionaries (sorted profile result lines dict)
    """
    profiler = Profile()
 
-   profiler.enable()
-   profiler.runcall(func, *func_positional_arguments, **func_keyword_arguments)
-   profiler.disable()
+   for repeat in range(profileit__repeat):
+      profiler.enable()
+      profiler.runcall(func, *func_positional_arguments, **func_keyword_arguments)
+      profiler.disable()
 
    profiler.create_stats()
    total_calls = 0
@@ -61,8 +70,8 @@ def _profile_it(func, func_positional_arguments, func_keyword_arguments, name, m
          # adjust path levels
          temp_path_file_ect = func_tmp[0]
          temp_slashes = temp_path_file_ect.count('/')
-         if temp_slashes > max_slashes_profile_info:
-            temp_dict['func_txt'] = '{}:{}({})'.format(temp_path_file_ect.split('/', temp_slashes - max_slashes_profile_info)[-1], func_tmp[1], func_tmp[2])
+         if temp_slashes > profileit__max_slashes_fileinfo:
+            temp_dict['func_txt'] = '{}:{}({})'.format(temp_path_file_ect.split('/', temp_slashes - profileit__max_slashes_fileinfo)[-1], func_tmp[1], func_tmp[2])
          else:
             temp_dict['func_txt'] = '{}:{}({})'.format(temp_path_file_ect, func_tmp[1], func_tmp[2])
 
@@ -84,12 +93,13 @@ def _profile_it(func, func_positional_arguments, func_keyword_arguments, name, m
    return summary_dict, table
 
 
-def speedit_profile(func_dict, use_func_name=True, output_in_sec=False, max_slashes_profile_info=2):
+def speedit_profile(func_dict, use_func_name=True, output_in_sec=False, profileit__max_slashes_fileinfo=2, profileit__repeat=1):
    """ Returns one txt string for: table format is conform with reStructuredText
 
    Args:
       func_dict (dict): mapping function names to functions
          value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
+
       use_func_name (bool): if True the function name will be used in the output `name` if False the `func_dict key` will be used in the the output `name`
 
       output_in_sec (int): if true the output is keep in seconds if false it is transformed to:
@@ -97,7 +107,17 @@ def speedit_profile(func_dict, use_func_name=True, output_in_sec=False, max_slas
          millisecond    (ms)  One thousandth of one second
          microsecond    (µs)  One millionth of one second
          nanosecond     (ns)  One billionth of one second
-      max_slashes_profile_info (int): to adjust max path levels in the profile info
+
+      profileit__max_slashes_fileinfo (int): to adjust max path levels in the profile info
+
+      profileit__repeat (int): how often the function is repeated: the result will be the sum of all: similar to the code below
+
+         .. code-block:: python
+
+            for repeat in range(profileit__repeat):
+               profiler.enable()
+               profiler.runcall(func, *func_positional_arguments, **func_keyword_arguments)
+               profiler.disable()
 
    Returns:
       str: ready to print or write to file: table format is conform with reStructuredText
@@ -114,7 +134,7 @@ def speedit_profile(func_dict, use_func_name=True, output_in_sec=False, max_slas
          name = getattr(function_, "__name__", function_)
       else:
          name = func_name
-      summary_dict, table = _profile_it(function_, func_positional_arguments, func_keyword_arguments, name, max_slashes_profile_info)
+      summary_dict, table = _profile_it(function_, func_positional_arguments, func_keyword_arguments, name, profileit__max_slashes_fileinfo, profileit__repeat)
 
       table = sorted(table, key=itemgetter('func_time'), reverse=True)
       compare_reference = summary_dict['total_time']
@@ -147,9 +167,9 @@ def speedit_profile(func_dict, use_func_name=True, output_in_sec=False, max_slas
 
       # add Title Summary
       if output_in_sec:
-         title_line = 'SpeedIT: `ProfileIT` name: <{}> total_calls: <{}> primitive_calls: <{}> total_time: <{:.11f}>'.format(summary_dict['name'], summary_dict['total_calls'], summary_dict['primitive_calls'], summary_dict['total_time'])
+         title_line = '`ProfileIT` name: <{}> profileit__repeat: <{}> || total_calls: <{}> primitive_calls: <{}> total_time: <{:.11f}>'.format(summary_dict['name'], profileit__repeat, summary_dict['total_calls'], summary_dict['primitive_calls'], summary_dict['total_time'])
       else:
-         title_line = 'SpeedIT: `ProfileIT` name: <{}> total_calls: <{}> primitive_calls: <{}> total_time: <{}>'.format(summary_dict['name'], summary_dict['total_calls'], summary_dict['primitive_calls'], format_time(summary_dict['total_time']))
+         title_line = '`ProfileIT` name: <{}> profileit__repeat: <{}> || total_calls: <{}> primitive_calls: <{}> total_time: <{}>'.format(summary_dict['name'], profileit__repeat, summary_dict['total_calls'], summary_dict['primitive_calls'], format_time(summary_dict['total_time']))
 
       all_final_lines.extend(get_table_rst_formatted_lines(table, header_mapping, title_line))
       all_final_lines.extend([

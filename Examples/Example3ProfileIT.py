@@ -99,7 +99,9 @@ def main():
    # https://github.com/thisismess/python-benchmark/blob/master/examples/benchmarkDictSorting.py
    data = dict(zip(range(1000), range(1000)))
 
+   # defining the: func_dict mapping
    func_dict = {
+      # value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
       'example_pep265': (example_pep265, [data], {}),
       'example_stupid': (example_stupid, [data], {}),
       'example_list_expansion': (example_list_expansion, [data], {}),
@@ -111,9 +113,16 @@ def main():
       'my_func': (my_func, [27], {'mul': 100}),
    }
 
+   result = speedit_profile(
+      func_dict, output_in_sec=False, 
+      use_func_name=True, 
+      profileit__max_slashes_fileinfo=2, 
+      profileit__repeat=2
+   )
+   
    with open('result_output/Example3ProfileIT.txt', 'w') as file_:
       file_.write('\n\n Example3ProfileIT.py output\n\n')
-      file_.write(speedit_profile(func_dict, output_in_sec=False, use_func_name=True, max_slashes_profile_info=2))
+      file_.write(result)
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

@@ -1,24 +1,40 @@
-xxxx-xx-xx    4.1.1
--------------------
-   * FIXED ERRORS:
-   * NEW ADDED:
-   * UPDATED, IMPROVEMENTS:
-   * REMOVED:
-   * DOCUMENTATION:
-   * OTHER CHANGES:
+Version 4.2.0     2014-07-26
+----------------------------
+
+This is not backwards compatible because functions keywords where renamed
+
+Features:
+
+   * BenchmarkIT
+      - Support for selected code parts within a function using: START/END TAGS as Comments
+         START-TAG: # ::SPEEDIT::
+         END-TAG: # **SPEEDIT**
+
+      - option: check_too_fast for very fast code this can be enabled to raise an Exception if it is faster than a reference code
+
+   * MainCode.speed_it(): added new keywords so that all can be enabled/disabled from this one function
+
+
+   * ProfileIT
+      - new keyword: profileit__repeat: which repeatedly profiles the function and generates one report
+
+Fixes/Improvements:
+
+   * BenchmarkIT
+      - added variable name prefix to avoid potential name clashes: reserved prefix: '_speeit_prefix'
 
 
 2014-07-23    4.1.0
 -------------------
    * Release v. 4.1.0
-   
+
    * NEW ADDED:
       - ProfileIT.py:
          - added argument: max_slashes_profile_info: to adjust max path levels in the profile info
-      
+
    * UPDATED, IMPROVEMENTS:
       - adjusted some internal used function names
-      
+
 2014-07-21    4.0.0
 -------------------
    * Release v. 4.0.0

@@ -7,8 +7,6 @@ SpeedIT: Description
 .. rubric:: SpeedIT:
 .. rubric:: A Collection of: Benchmark-IT, Profile-IT, Line-Memory-Profile-IT, Disassemble-IT.
 
-.. note:: `SpeedIT as of version 4.0 (20140721)` is not backwards compatible
-
 .. contents::
    :depth: 3
 
@@ -27,102 +25,154 @@ Main Info
 SpeedIT is a small collection of 4 modules: BenchmarkIT, ProfileIT, LineMemoryProfileIT, DisassembleIT and additional the combined: MainCode module
 
 
-BenchmarkIT
------------
+SpeedIT
+-------
 
-.. note:: full version of the following example is in the `development-source: Examples` folder: `ReadmeExampleBenchmarkIT.py`
-
-
-.. code-block:: python
-
-   # Import: BenchmarkIT
-   from SpeedIT.BenchmarkIT import speedit_benchmark
-
-   # get a list of text lines to iterate over and split by double colon
-   source_list1 = [
-      '1 Double :: is the ultimate tool for telecommuting.',
-      '    _menu',
-      '        _id :: file',
-      '        # CommentLine starts with # and can be included',
-      '        _value :: File',
-      '        _popup',
-      '            _menuitem',
-      '                _value1 :: New',
-      '                _onclick1 CreateNewDoc()',
-      '                _value2 :: Open',
-      '                _onclick2 :: OpenDoc()',
-      '                _value3 :: Close',
-      '                _onclick3 :: CloseDoc()',
-      '    # CommentLine starts with # and can be included',
-      '    _Help :: About',
-      '    Old Version'
-      '     test is not ok'
-      '     https://github.com/peter1000',
-   ]
+**MainCode.speed_it** function for easy combined: <BenchmarkIT, ProfileIT, LineMemoryProfileIT, DisassembleIT>
 
 
-- define some code to compare different approaches
+
+To use it one needs to define a couple of functions to `benchmark`
+
+
+1. import speed_it
+++++++++++++++++++
 
 .. code-block:: python
 
-   # define some functions to compare different approaches
-   def split_catch_error():
-      for str_ in source_list1:
-         try:
-            name, txt = str_.split('::', 1)
-            #print('name: ', name, ' txt: ', txt)
-         except ValueError:
-            pass
+   from SpeedIT.MainCode import speed_it
 
 
-   def split_check_first_notfound():
-      for str_ in source_list1:
-         if '::' in str_:
-            name, txt = str_.split('::', 1)
-            #print('name: ', name, ' txt: ', txt)
+2. define some code to `Speed-IT`
++++++++++++++++++++++++++++++++++
 
-- defining the BenchmarkIT: `func_dict mapping`: this defines which function is really included in the BenchmarkIT run
+.. code-block:: python
+
+   test_value = '~/etc/mypath'
+
+   # define SpeedIT functions
+   def example_startswith():
+      if test_value.startswith('~/'):
+         pass
+
+   def example_two_idx():
+      if test_value[0] == '~' and test_value[1] == '/':
+         pass
+
+   def example_slice():
+      if test_value[:2] == '~/':
+         pass
+
+
+3. define the function mapping
+++++++++++++++++++++++++++++++
+
+This is a dictionary with key(names) and a tuple per function:
+
+- value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
+
+.. note::  if use_func_name=False the key(names) are used in the output if True the real function name is used
 
 .. code-block:: python
 
    # defining the: func_dict mapping
    func_dict = {
-      #  value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
-      'split_catch_error': (split_catch_error, [], {}),
-      'split_check_first_notfound': (split_check_first_notfound, [], {}),
+      # value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
+      'startswith': (example_startswith, [], {}),
+      'two_idx': (example_two_idx, [], {}),
+      'slice': (example_slice, [], {}),
    }
 
 
-- defining the BenchmarkIT: `setup_line_list`: this is a list of strings for imports, variables ect to be setup before any of the functions runs
+4. define the setup_line_list
++++++++++++++++++++++++++++++
+
+This is a list with all needed code to setup so that the functions can run: e.g. imports, global variables
 
 .. code-block:: python
 
-   # defining any: setup_line_list
    setup_line_list = [
-      'from __main__ import source_list1',
+      'from __main__ import test_value'
    ]
 
-- run the BenchmarkIT:
+
+5. run speed-it and write result to file
+++++++++++++++++++++++++++++++++++++++++
+
+
+For the available options see the API-DOC or source code
 
 .. code-block:: python
 
-   with open('result_output/ReadmeExampleBenchmarkIT.txt', 'w') as file_:
-      file_.write('\n\n ReadmeExampleBenchmarkIT.py output\n\n')
-      file_.write(speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=2))
+   result = speed_it(
+      func_dict,
+      setup_line_list,
+      enable_benchmarkit=True,
+      enable_profileit=True,
+      enable_linememoryprofileit=True,
+      enable_disassembleit=True,
+      use_func_name=False,
+      output_in_sec=False,
+      profileit__max_slashes_fileinfo=2,
+      profileit__repeat=1,
+      benchmarkit__with_gc=False,
+      benchmarkit__check_too_fast=True,
+      benchmarkit__rank_by='best',
+      benchmarkit__run_sec=1,
+      benchmarkit__repeat=3
+   )
 
-**RESULT** is a table which format is conform with reStructuredText
+   with open('result_output/ReadmeExampleMainSpeedIT.txt', 'w') as file_:
+      file_.write('\n\n ReadmeExampleMainSpeedIT.py output\n\n')
+      file_.write(result)
 
 
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                                           SpeedIT: `BenchmarkIT`  for: <2> functions. with_gc: <False> run_sec: <1>                                            |
-+----------------------------+--------------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
-|                       name | rank-average | compare % | num. loops | avg_loop | best_loop | second_best_loop | worst_loop | second_worst_loop | all_loops time |
-+============================+==============+===========+============+==========+===========+==================+============+===================+================+
-| split_check_first_notfound |            1 |   100.000 |    112,675 |  8.10 us |   7.60 us |          7.60 us |   50.05 us |          32.67 us |      912.39 ms |
-+----------------------------+--------------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
-|          split_catch_error |            2 |   275.092 |     42,877 | 22.28 us |  20.70 us |         20.81 us |   79.46 us |          52.45 us |      955.12 ms |
-+----------------------------+--------------+-----------+------------+----------+-----------+------------------+------------+-------------------+----------------+
+BenchmarkIT
+-----------
 
+.. note:: full versions example is in the `development-source: Examples` folder: `Example2aBenchmarkIT.py` and `Example2bBenchmarkIT.py`
+
+BenchmarkIT supports also timing of only selected code parts within a function using Comment lines with a START/END TAG.
+
+.. code-block:: python
+
+   START-TAG: # ::SPEEDIT::
+   END-TAG:   # **SPEEDIT**
+
+
+.. note:: adding some description after the START-TAG: # ::SPEEDIT:: can help to distinguish in some error messages
+
+The code below will report the combined time of the code part between `# ::SPEEDIT::`  and  `# **SPEEDIT**`
+
+   - in the case below skipping the time spent in `shuffle(data)`
+
+.. code-block:: python
+
+   def example_multiple_subcode_blocks():
+      # ::SPEEDIT:: data
+      data = dict(zip(range(1000), range(1000)))
+      # **SPEEDIT**
+      shuffle(data)
+      # ::SPEEDIT:: sorted
+      result = sorted(data.items(), key=itemgetter(1))
+      del result
+      # **SPEEDIT**
+
+
+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                           SpeedIT: `BenchmarkIT`  for: <3> functions. benchmarkit__with_gc: <False> benchmarkit__run_sec: <1>                             |
++-------------------------+-----------+-----------+------------+-----------+-----------+------------------+------------+-------------------+----------------+
+|                    name | rank-best | compare % | num. loops |  avg_loop | best_loop | second_best_loop | worst_loop | second_worst_loop | all_loops time |
++=========================+===========+===========+============+===========+===========+==================+============+===================+================+
+| multiple_subcode_blocks |         1 |   100.000 |        481 | 612.10 us | 604.81 us |        605.08 us |  739.61 us |         723.65 us |      294.42 ms |
++-------------------------+-----------+-----------+------------+-----------+-----------+------------------+------------+-------------------+----------------+
+|   single_subcode_blocks |         2 |   236.732 |        449 |   1.58 ms |   1.43 ms |          1.44 ms |    2.98 ms |           2.97 ms |      707.21 ms |
++-------------------------+-----------+-----------+------------+-----------+-----------+------------------+------------+-------------------+----------------+
+|          whole_function |         3 |   337.108 |        482 |   2.08 ms |   2.04 ms |          2.04 ms |    2.24 ms |           2.12 ms |         1.00 s |
++-------------------------+-----------+-----------+------------+-----------+-----------+------------------+------------+-------------------+----------------+
 
 
 **Short explanation of result:**
@@ -144,74 +194,62 @@ BenchmarkIT
 
    - second_worst_loop: the second slowest of all loops
 
-   - all_loops time: is the time it took for all loops to run
+   - all_loops time: is the time for all loops combined: because of overhead this is often lower than the `benchmarkit__run_sec` set
 
-   - *Example Above*
+      - also consider that if one times only selected code parts within a function: using START/END TAGS `all_loops` time might be much lower
+         as it reports the measured time and not the total execution time
 
-      - without the extra data one would only know that the average loop was approximately 3 times faster if one checks first if the split item exists
 
-      - BUT as one can see the fastest of the `split_catch_error: 20.70 us` is still more nearly double so fast than the slowest of the 'split_check_first_notfound: 50.05 us'
+.. note:: from https://docs.python.org/3.4/library/timeit.html repeat
 
-      .. note:: from https://docs.python.org/3.4/library/timeit.html repeat
-
-         It’s tempting to calculate mean and standard deviation from the result vector and report these. However, this is not very useful. 
-         In a typical case, the lowest value gives a lower bound for how fast your machine can run the given code snippet; 
-         higher values in the result vector are typically not caused by variability in Python’s speed, but by other processes interfering 
-         with your timing accuracy. So the min() of the result is probably the only number you should be interested in. 
-         After that, you should look at the entire vector and apply common sense rather than statistics.
+   It’s tempting to calculate mean and standard deviation from the result vector and report these. However, this is not very useful.
+   In a typical case, the lowest value gives a lower bound for how fast your machine can run the given code snippet;
+   higher values in the result vector are typically not caused by variability in Python’s speed, but by other processes interfering
+   with your timing accuracy. So the min() of the result is probably the only number you should be interested in.
+   After that, you should look at the entire vector and apply common sense rather than statistics.
 
 
 ProfileIT
 ---------
 
-Uses pythons cProfiler: *most of the things are similar to what we saw above.*
+Uses pythons cProfiler:
 
-.. note:: full versions example is in the `development-source: Examples` folder:  `ReadmeExampleProfileIT.py`
-
-
-- run the ProfileIT:
-
-   - in general similar to `BenchmarkIT` except the `setup_line_list` is not needed
-
-.. code-block:: python
-
-
-   with open('result_output/ReadmeExampleProfileIT.txt', 'w') as file_:
-      file_.write('\n\n ReadmeExampleProfileIT.py output\n\n')
-      file_.write(speedit_profile(func_dict, output_in_sec=False, use_func_name=True, max_slashes_profile_info=2))
-
+.. note:: full versions example is in the `development-source: Examples` folder:  `Example3ProfileIT.py`
 
 **RESULT** is for each function a separate table which format is conform with reStructuredText
 
-function 1
 
-+---------------------------------------------------------------------------------------------------------------+
-| SpeedIT: `ProfileIT` name: <split_catch_error> total_calls: <17> primitive_calls: <17> total_time: <83.00 us> |
-+------+-----------+-----------+-----------------+--------------------------------------------------------------+
-| rank | compare % | func_time | number_of_calls |                                                     func_txt |
-+======+===========+===========+=================+==============================================================+
-|    1 |    75.904 |  63.00 us |               1 |              ReadmeExampleProfileIT.py:50(split_catch_error) |
-+------+-----------+-----------+-----------------+--------------------------------------------------------------+
-|    2 |    24.096 |  20.00 us |              16 |                            <method 'split' of 'str' objects> |
-+------+-----------+-----------+-----------------+--------------------------------------------------------------+
-
-function 2
-
-+------------------------------------------------------------------------------------------------------------------------+
-| SpeedIT: `ProfileIT` name: <split_check_first_notfound> total_calls: <10> primitive_calls: <10> total_time: <26.00 us> |
-+------+-----------+-----------+-----------------+-----------------------------------------------------------------------+
-| rank | compare % | func_time | number_of_calls |                                                              func_txt |
-+======+===========+===========+=================+=======================================================================+
-|    1 |    65.385 |  17.00 us |               1 |              ReadmeExampleProfileIT.py:59(split_check_first_notfound) |
-+------+-----------+-----------+-----------------+-----------------------------------------------------------------------+
-|    2 |    34.615 |   9.00 us |               9 |                                     <method 'split' of 'str' objects> |
-+------+-----------+-----------+-----------------+-----------------------------------------------------------------------+
++--------------------------------------------------------------------------------------------------------------------------------+
+| `ProfileIT` name: <example_lambda> profileit__repeat: <2> || total_calls: <8767> primitive_calls: <8767> total_time: <6.12 ms> |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+| rank | compare % | func_time | number_of_calls |                                                                      func_txt |
++======+===========+===========+=================+===============================================================================+
+|    1 |    36.664 |   2.24 ms |           1,998 |                                       lib/python3.4/random.py:220(_randbelow) |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    2 |    25.740 |   1.57 ms |               2 |                                          lib/python3.4/random.py:258(shuffle) |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    3 |    20.392 |   1.25 ms |               2 |                                                      <built-in method sorted> |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    4 |     8.782 | 537.00 us |           2,761 |                            <method 'getrandbits' of '_random.Random' objects> |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    5 |     4.513 | 276.00 us |           2,000 |                                             Example3ProfileIT.py:60(<lambda>) |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    6 |     2.829 | 173.00 us |           1,998 |                                        <method 'bit_length' of 'int' objects> |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    7 |     1.063 |  65.00 us |               2 |                                       Example3ProfileIT.py:58(example_lambda) |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    8 |     0.016 |   1.00 us |               2 |                                                         <built-in method len> |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
+|    9 |     0.000 |   0.00 ns |               2 |                                            <method 'items' of 'dict' objects> |
++------+-----------+-----------+-----------------+-------------------------------------------------------------------------------+
 
 
 *Short explanation of result:*
 
+- this is a combined result for all runs specified by: profileit__repeat
+
 - compare %: takes the `func_time` starting with the slowest part and displays
-             how many % it took based on the whole execution time
+             how many % it took based on the whole execution time (100 %)
 
 
 LineMemoryProfileIT
@@ -231,12 +269,6 @@ Uses pythons `dis`
 
 
 .. note:: full versions example is in the `development-source: Examples` folder: named **Example5DisassembleIT.py**
-
-
-SpeedIT
--------
-
-**MainCode.speed_it** function for easy combined: <BenchmarkIT, ProfileIT, LineMemoryProfileIT, DisassembleIT>
 
 
 Code Examples

@@ -99,7 +99,9 @@ def main():
    # https://github.com/thisismess/python-benchmark/blob/master/examples/benchmarkDictSorting.py
    data = dict(zip(range(1000), range(1000)))
 
+   # defining the: func_dict mapping
    func_dict = {
+      # value format: tuple (function, list_of_positional_arguments, dictionary_of_keyword_arguments)
       'example pep265': (example_pep265, [data], {}),
       'example stupid': (example_stupid, [data], {}),
       'example list_expansion': (example_list_expansion, [data], {}),
@@ -116,9 +118,28 @@ def main():
       'from __main__ import helper_fnouter'
    ]
 
+   result = speed_it(
+      func_dict,
+      setup_line_list,
+      enable_benchmarkit=True,
+      enable_profileit=True,
+      enable_linememoryprofileit=True,
+      enable_disassembleit=True,
+      use_func_name=True,
+      output_in_sec=False,
+      profileit__max_slashes_fileinfo=2, 
+      profileit__repeat=2,
+      benchmarkit__with_gc=False,
+      benchmarkit__check_too_fast=True,
+      benchmarkit__rank_by='best',
+      benchmarkit__run_sec=1,
+      benchmarkit__repeat=3
+   )
+
    with open('result_output/Example1MainSpeedIT.txt', 'w') as file_:
       file_.write('\n\n Example1MainSpeedIT.py output\n\n')
-      file_.write(speed_it(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, max_slashes_profile_info=2, with_gc=False, rank_by='best', run_sec=1, repeat=1))
+      file_.write(result)
+
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 if __name__ == '__main__':

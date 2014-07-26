@@ -1,14 +1,35 @@
 """ Benchmark module: can also compare multiple functions
 """
 import gc
-import inspect
+from inspect import (
+   signature,
+   getsourcelines
+)
 from operator import itemgetter
+from time import perf_counter
 
 from SpeedIT.ProjectErr import Err
 from SpeedIT.Utils import (
-   get_table_rst_formatted_lines,
-   format_time
+   format_time,
+   get_table_rst_formatted_lines
 )
+
+
+
+def _helper_get_perf_counter_reference_time():
+   """ Helper: Returns 2 times: the smallest difference of calling perf_counter() immediately after each other a couple of times
+
+   Returns:
+      float: 2 times the smallest difference of calling perf_counter() immediately after each other a couple of times
+   """
+   _result_time = 99999999999.0
+   for y_ in range(50):
+      for x_ in range(3000):
+         temp_start = perf_counter()
+         temp_time = perf_counter() - temp_start
+         if temp_time < _result_time:
+            _result_time = temp_time
+   return _result_time * 2
 
 
 class _TimeIT(object):
@@ -51,6 +72,13 @@ class _TimeIT(object):
 
          .. warning:: no multiline string or indented code line
 
+      check_too_fast(bool): if True and a code block is timed faster than a `Reference-Time` an Exception is raised.
+
+         - Reference-Time: the smallest difference of calling perf_counter() immediately after each other a couple of times
+
+
+         .. seealso:: _helper_get_perf_counter_reference_time()
+
       run_sec (float or -1 or None): seconds the `func code block` will be executed (looped over)
 
             - if run_sec is -1: then the generated function source code is only run once
@@ -58,10 +86,12 @@ class _TimeIT(object):
             - if run_sec is None:  then the generated function source code is only printed
                this is mainly useful to see the exact final `func code block` which will be timed.
 
-      name: the name used for the output `name` part
+      name (str): the name used for the output `name` part
+
+      perf_counter_reference_time (float): passed on see: _helper_get_perf_counter_reference_time()
    """
 
-   def __init__(self, func, args_list, kwargs_dict, setup_line_list, run_sec, name):
+   def __init__(self, func, args_list, kwargs_dict, setup_line_list, check_too_fast, run_sec, name, perf_counter_reference_time):
       """ Constructor.  See class doc string.
       """
       self.func = func
@@ -69,8 +99,10 @@ class _TimeIT(object):
       self.args_list = args_list.copy()
       self.kwargs_dict = kwargs_dict.copy()
       self.setup_line_list = setup_line_list
+      self.check_too_fast = check_too_fast
       self.run_sec = run_sec
       self.name = name
+      self.perf_counter_reference_time = perf_counter_reference_time
       if callable(self.func):
          _ns = {}
          self.src = self.__get_final_inner_function()
@@ -113,7 +145,7 @@ class _TimeIT(object):
          gc_old = gc.isenabled()
          gc.enable()
          try:
-            benchmark_result = self.inner(self.run_sec)
+            benchmark_result = self.inner()
             benchmark_result['name'] = self.name
          finally:
             if not gc_old:
@@ -122,13 +154,12 @@ class _TimeIT(object):
          gc_old = gc.isenabled()
          gc.disable()
          try:
-            benchmark_result = self.inner(self.run_sec)
+            benchmark_result = self.inner()
             benchmark_result['name'] = self.name
          finally:
             if gc_old:
                gc.enable()
       return benchmark_result
-
 
    def __get_final_inner_function(self):
       """ Returns a string of an generated inner function with the code body from: func
@@ -143,8 +174,13 @@ class _TimeIT(object):
       Raises:
          SpeedIT.Err: example if an indentation is encountered which is not a multiple of the first found indentation
       """
-      func_line, lnum = inspect.getsourcelines(self.func)
-      sig = inspect.signature(self.func)
+      has_block_speedit = False
+      _start_block_stripped_line = ''
+      start_tag_block_speedit = 0
+      end_tag_block_speedit = 0
+
+      func_line, lnum = getsourcelines(self.func)
+      sig = signature(self.func)
       indent_ = None
       func_def_indent = len(func_line[0]) - len(func_line[0].lstrip())
       func_body = func_line[1:]
@@ -157,7 +193,8 @@ class _TimeIT(object):
          if rstripped_line:
             stripped_codeline = rstripped_line.lstrip()
             if stripped_codeline[0] == '#':  # remove comment lines
-               continue
+               if not ('::SPEEDIT::' in stripped_codeline or '**SPEEDIT**' in stripped_codeline):
+                  continue
             if search_docstring:
                if stripped_codeline[0:3] == '"""' or stripped_codeline[0:3] == "'''":
                   search_docstring = False
@@ -181,15 +218,54 @@ class _TimeIT(object):
             rstrip_line = line_orig.rstrip()
             if rstrip_line:
                stripped_line = rstrip_line.lstrip()
-               if stripped_line[0] == '#':  # remove comment lines
-                  continue
-
+               if stripped_line[0] == '#':  # remove comment lines: keep any with  ::SPEEDIT::
+                  if '::SPEEDIT::' in stripped_line or '**SPEEDIT**' in stripped_line:
+                     has_block_speedit = True
+                  else:
+                     continue
                line_indentation = len(rstrip_line) - len(stripped_line)
                if line_indentation % indent_ != 0:
-                  raise Err('_TimeIT.get_final_inner_function', 'ERROR: indentation must be a multiple of the second function line: <{}>\n  seems we encountered a wrong indented line: line_indentation: <{}>\n {}'.format(indent_, line_indentation, line_orig))
+                  raise Err('_TimeIT.get_final_inner_function', '<{}>: ERROR: indentation must be a multiple of the second function line: <{}>\n  seems we encountered a wrong indented line: line_indentation: <{}>\n {}'.format(self.orig_func_name, indent_, line_indentation, line_orig))
                line_indentation_level = int((line_indentation - func_def_indent) / indent_) + 1  # need one extra level
 
-               adjusted_func_code_line.append(('   ' * line_indentation_level) + stripped_line)
+               if has_block_speedit:
+                  if '::SPEEDIT::' in stripped_line:
+                     if start_tag_block_speedit != end_tag_block_speedit:
+                        # expected END Tag
+                        raise Err('_TimeIT.get_final_inner_function', '<{}>: FUNCTION INNER TAG ERROR: has_block_speedit: <{}>\n  Expected an END-TAG <**SPEEDIT**>: \n {}'.format(self.orig_func_name, has_block_speedit, line_orig))
+                     adjusted_func_code_line.append(('   ' * line_indentation_level) + '_speeit_prefix__stmt_inner_start = _speeit_prefix__perf_counter()  # ::SPEEDIT::START internally added')
+                     start_tag_block_speedit += 1
+                     _start_block_stripped_line = stripped_line
+                  elif '**SPEEDIT**' in stripped_line:
+                     if end_tag_block_speedit != start_tag_block_speedit - 1:
+                        # expected START TAG
+                        raise Err('_TimeIT.get_final_inner_function', '<{}>: FUNCTION INNER TAG ERROR: has_block_speedit: <{}>\n  Expected an START-TAG <::SPEEDIT::>: \n {}'.format(self.orig_func_name, has_block_speedit, line_orig))
+                     # Do this inner result
+                     adjusted_func_code_line.append(('   ' * line_indentation_level) + '_speeit_prefix__result_time += _speeit_prefix__perf_counter() - _speeit_prefix__stmt_inner_start  # **SPEEDIT**END internally added')
+                     if self.check_too_fast:
+                        adjusted_func_code_line.append(('   ' * line_indentation_level) + 'if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>\\n  ' + '  _start_block_stripped_line: <{}>'.format(_start_block_stripped_line) + '".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
+                     end_tag_block_speedit += 1
+                  else:
+                     adjusted_func_code_line.append(('   ' * line_indentation_level) + stripped_line)
+               else:
+                  adjusted_func_code_line.append(('   ' * line_indentation_level) + stripped_line)
+
+      # CHECK: LAST END TAG
+      # e.g. if a function body ends with an END-TAG this is not returned by: inspect.getsourcelines(self.func)
+      if has_block_speedit:
+         if start_tag_block_speedit != end_tag_block_speedit:
+            # Do the last inner result: ADDING an END-TAG
+            adjusted_func_code_line.append('      _speeit_prefix__result_time += _speeit_prefix__perf_counter() - _speeit_prefix__stmt_inner_start  # **SPEEDIT**END internally added')
+            if self.check_too_fast:
+               adjusted_func_code_line.append('      if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>\\n  ' + '  _start_block_stripped_line: <{}>'.format(_start_block_stripped_line) + '".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
+
+      # add the normal perf_counter time lines
+      else:
+         adjusted_func_code_line.insert(0, '      _speeit_prefix__stmt_inner_start = _speeit_prefix__perf_counter()  # ::SPEEDIT::START internally added')
+         adjusted_func_code_line.append('      _speeit_prefix__result_time += _speeit_prefix__perf_counter() - _speeit_prefix__stmt_inner_start  # **SPEEDIT**END internally added')
+
+         if self.check_too_fast:
+            adjusted_func_code_line.append('      if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
 
       # Do the arguments
       final_param_line = []
@@ -241,8 +317,10 @@ class _TimeIT(object):
             final_setup_lines.append('   ' + setup_line)
 
       final_inner_function_lines = [
-         'def inner(run_sec=0.1):  # orig function name: <{}>'.format(self.orig_func_name),
-         '   from time import perf_counter',
+         'def inner():  # orig function name: <{}>'.format(self.orig_func_name),
+         '   from time import perf_counter as _speeit_prefix__perf_counter',
+         '',
+         '   _speeit_prefix__run_sec = {}'.format(self.run_sec),
          '',
          '   # ==================== START SETUP LINES ==================== #',
          '',
@@ -254,32 +332,34 @@ class _TimeIT(object):
          '',
          '   # ==================== END SETUP LINES ==================== #',
          '',
-         '   _loops = 0',
-         '   _all_loops_time_sec = 0.0',
-         '   _avg_loop_sec = 0.0',
-         '   _best_loop_sec = 99999999999.0',
-         '   _second_best_loop_sec = 99999999999.0',
-         '   _worst_loop_sec = 0.0',
-         '   _second_worst_loop_sec = 0.0',
-         '   if run_sec is None:',
+         '   # The smallest difference of calling _speeit_prefix__perf_counter() immediately after each other a couple of times',
+         '   _speeit_prefix__check_reference_time = {}'.format(self.perf_counter_reference_time),
+         '   _speeit_prefix__loops = 0',
+         '   _speeit_prefix__all_loops_time_sec = 0.0',
+         '   _speeit_prefix__avg_loop_sec = 0.0',
+         '   _speeit_prefix__best_loop_sec = 99999999999.0',
+         '   _speeit_prefix__second_best_loop_sec = 99999999999.0',
+         '   _speeit_prefix__worst_loop_sec = 0.0',
+         '   _speeit_prefix__second_worst_loop_sec = 0.0',
+         '   if _speeit_prefix__run_sec is None:',
          '      return {',
-         '         "loops": _loops,',
-         '         "all_loops_time_sec": _all_loops_time_sec,',
-         '         "avg_loop_sec": _avg_loop_sec,',
-         '         "best_loop_sec": _best_loop_sec,',
-         '         "second_best_loop_sec": _second_best_loop_sec,',
-         '         "worst_loop_sec": _worst_loop_sec,',
-         '         "second_worst_loop_sec": _second_worst_loop_sec',
+         '         "loops": _speeit_prefix__loops,',
+         '         "all_loops_time_sec": _speeit_prefix__all_loops_time_sec,',
+         '         "avg_loop_sec": _speeit_prefix__avg_loop_sec,',
+         '         "best_loop_sec": _speeit_prefix__best_loop_sec,',
+         '         "second_best_loop_sec": _speeit_prefix__second_best_loop_sec,',
+         '         "worst_loop_sec": _speeit_prefix__worst_loop_sec,',
+         '         "second_worst_loop_sec": _speeit_prefix__second_worst_loop_sec',
          '      }',
-         '   elif run_sec == -1:',
+         '   elif _speeit_prefix__run_sec == -1:',
          '      # only run it once',
-         '      run_once = True',
+         '      _speeit_prefix__run_once = True',
          '   else:',
-         '      run_once = False',
-         '   _main_start_time = perf_counter()',
+         '      _speeit_prefix__run_once = False',
+         '   _speeit_prefix__main_start_time = _speeit_prefix__perf_counter()',
          '   while True:',
-         '      _loops += 1',
-         '      _stmt_start = perf_counter()',
+         '      _speeit_prefix__loops += 1',
+         '      _speeit_prefix__result_time = 0',
          '',
          '      # ==================== START CODE BLOCK ==================== #',
          '',
@@ -294,33 +374,31 @@ class _TimeIT(object):
          '',
          '      # ==================== END CODE BLOCK ==================== #',
          '',
-         '      _now_time = perf_counter()',
-         '      _result_time = _now_time - _stmt_start',
-         '      _all_loops_time_sec += _result_time',
-         '      if _result_time <= _best_loop_sec:',
-         '         _second_best_loop_sec = _best_loop_sec',
-         '         _best_loop_sec = _result_time',
-         '      if _result_time >= _worst_loop_sec:',
-         '         _second_worst_loop_sec = _worst_loop_sec',
-         '         _worst_loop_sec = _result_time',
-         '      if run_once:',
+         '      _speeit_prefix__all_loops_time_sec += _speeit_prefix__result_time',
+         '      if _speeit_prefix__result_time <= _speeit_prefix__best_loop_sec:',
+         '         _speeit_prefix__second_best_loop_sec = _speeit_prefix__best_loop_sec',
+         '         _speeit_prefix__best_loop_sec = _speeit_prefix__result_time',
+         '      if _speeit_prefix__result_time >= _speeit_prefix__worst_loop_sec:',
+         '         _speeit_prefix__second_worst_loop_sec = _speeit_prefix__worst_loop_sec',
+         '         _speeit_prefix__worst_loop_sec = _speeit_prefix__result_time',
+         '      if _speeit_prefix__run_once:',
          '         break',
          '      # check if we have to get out',
-         '      if _now_time - _main_start_time >= run_sec:',
+         '      if _speeit_prefix__perf_counter() - _speeit_prefix__main_start_time >= _speeit_prefix__run_sec:',
          '         break',
-         '   _avg_loop_sec = _all_loops_time_sec / _loops',
-         '   if _second_best_loop_sec == 99999999999.0:',
-         '      _second_best_loop_sec = -1.0',
-         '   if _second_worst_loop_sec == 0.0:',
-         '      _second_worst_loop_sec = -1.0',
+         '   _speeit_prefix__avg_loop_sec = _speeit_prefix__all_loops_time_sec / _speeit_prefix__loops',
+         '   if _speeit_prefix__second_best_loop_sec == 99999999999.0:',
+         '      _speeit_prefix__second_best_loop_sec = -1.0',
+         '   if _speeit_prefix__second_worst_loop_sec == 0.0:',
+         '      _speeit_prefix__second_worst_loop_sec = -1.0',
          '   return {',
-         '      "loops": _loops,',
-         '      "all_loops_time_sec": _all_loops_time_sec,',
-         '      "avg_loop_sec": _avg_loop_sec,',
-         '      "best_loop_sec": _best_loop_sec,',
-         '      "second_best_loop_sec": _second_best_loop_sec,',
-         '      "worst_loop_sec": _worst_loop_sec,',
-         '      "second_worst_loop_sec": _second_worst_loop_sec',
+         '      "loops": _speeit_prefix__loops,',
+         '      "all_loops_time_sec": _speeit_prefix__all_loops_time_sec,',
+         '      "avg_loop_sec": _speeit_prefix__avg_loop_sec,',
+         '      "best_loop_sec": _speeit_prefix__best_loop_sec,',
+         '      "second_best_loop_sec": _speeit_prefix__second_best_loop_sec,',
+         '      "worst_loop_sec": _speeit_prefix__worst_loop_sec,',
+         '      "second_worst_loop_sec": _speeit_prefix__second_worst_loop_sec',
          '   }',
          ''
       ]
@@ -329,7 +407,7 @@ class _TimeIT(object):
       return '\n'.join(final_inner_function_lines)
 
 
-def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, with_gc=False, rank_by='best', run_sec=1, repeat=3):
+def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_sec=False, benchmarkit__with_gc=False, benchmarkit__check_too_fast=True, benchmarkit__rank_by='best', benchmarkit__run_sec=1, benchmarkit__repeat=3):
    """ Returns one txt string for the ready comparison table: format is conform with reStructuredText
 
    Usage:
@@ -348,7 +426,7 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
          'MY_CONSTANT = 15'
       ]
 
-      benchmark_result = BenchmarkIT.speedit_benchmark(func_dict, setup_line_list, run_sec=1.0, output_in_sec=True, use_func_name=True, with_gc=False, repeat=3)
+      benchmark_result = BenchmarkIT.speedit_benchmark(func_dict, setup_line_list, benchmarkit__run_sec=1.0, output_in_sec=True, use_func_name=True, benchmarkit__with_gc=False, benchmarkit__repeat=3)
 
    Args:
       func_dict (dict): mapping function names to functions
@@ -365,19 +443,26 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
          microsecond    (µs)  One millionth of one second
          nanosecond     (ns)  One billionth of one second
 
-      with_gc (bool): if True gc is kept on during timing: if False: turns off garbage collection during the timing
+      benchmarkit__with_gc (bool): if True gc is kept on during timing: if False: turns off garbage collection during the timing
 
-      rank_by (str): `best` or `average`
+      benchmarkit__check_too_fast(bool): if True and aa code block is timed faster than a `Reference-Time` an Exception is raised.
 
-      run_sec (float or -1 or None): the number of loops per run is scaled to approximately fit the run_sec
+         - Reference-Time: the smallest difference of calling perf_counter() immediately after each other a couple of times
 
-            - if run_sec is -1: then the generated function source code is only run once
+         .. seealso:: _helper_get_perf_counter_reference_time()
 
-            - if run_sec is None:  then the generated function source code is only printed
+      benchmarkit__rank_by (str): `best` or `average`
+
+      benchmarkit__run_sec (float or -1 or None): the number of loops per run is scaled to approximately fit the benchmarkit__run_sec
+
+            - if benchmarkit__run_sec is -1: then the generated function source code is only run once
+
+            - if benchmarkit__run_sec is None:  then the generated function source code is only printed
                this is mainly useful to see the exact final `func code block` which will be timed.
 
-      repeat (int): how often everything is repeated again
+      benchmarkit__repeat (int): how often everything is repeated
          This is a convenience variable that calls the whole setup repeatedly
+
    Returns:
       str: ready to print or write to file: table format is conform with reStructuredText
 
@@ -386,14 +471,20 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
    """
    if not func_dict:
       raise Err('speedit_benchmark()', 'At least one function must be defined in `func_dict`: <{}>'.format(func_dict))
-   if rank_by != 'best' and rank_by != 'average':
-      raise Err('speedit_benchmark()', '<rank_by> must be one of: <best, average> We got: <{}>'.format(rank_by))
+   if benchmarkit__rank_by != 'best' and benchmarkit__rank_by != 'average':
+      raise Err('speedit_benchmark()', '<benchmarkit__rank_by> must be one of: <best, average> We got: <{}>'.format(benchmarkit__rank_by))
+   if benchmarkit__repeat < 1:
+      raise Err('speedit_benchmark()', '<benchmarkit__repeat> must be greater than <0> We got: <{}>'.format(benchmarkit__repeat))
+
 
    all_final_lines = []
 
-   if run_sec is None:
+   # get once the perf_counter_reference_time
+   perf_counter_reference_time = _helper_get_perf_counter_reference_time()
+
+   if benchmarkit__run_sec is None:
       all_final_lines.extend([
-         '================ RUN SECONDS:  run_sec was defined as: None  (run_sec=None) ================',
+         '================ RUN SECONDS:  benchmarkit__run_sec was defined as: None  (benchmarkit__run_sec=None) ================',
          '',
          ''
       ])
@@ -403,7 +494,7 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
             name = getattr(function_, "__name__", function_)
          else:
             name = func_name
-         benchmark_result = _TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, run_sec, name).benchmark_it(with_gc)
+         benchmark_result = _TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, benchmarkit__check_too_fast, benchmarkit__run_sec, name, perf_counter_reference_time).benchmark_it(benchmarkit__with_gc)
          all_final_lines.extend([
             '===================== function name: <{}>'.format(func_name),
             '',
@@ -412,19 +503,19 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
             '',
          ])
    else:
-      title_line = 'SpeedIT: `BenchmarkIT`  for: <{}> functions. with_gc: <{}> run_sec: <{}> '.format(len(func_dict), with_gc, run_sec)
+      title_line = 'SpeedIT: `BenchmarkIT`  for: <{}> functions. benchmarkit__with_gc: <{}> benchmarkit__run_sec: <{}> '.format(len(func_dict), benchmarkit__with_gc, benchmarkit__run_sec)
 
-      for repeat_all in range(repeat):
+      for repeat_all in range(benchmarkit__repeat):
          table = []
          for func_name, (function_, func_positional_arguments, func_keyword_arguments) in sorted(func_dict.items()):
             if use_func_name:
                name = getattr(function_, "__name__", function_)
             else:
                name = func_name
-            benchmark_result = _TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, run_sec, name).benchmark_it(with_gc=with_gc)
+            benchmark_result = _TimeIT(function_, func_positional_arguments, func_keyword_arguments, setup_line_list, benchmarkit__check_too_fast, benchmarkit__run_sec, name, perf_counter_reference_time).benchmark_it(with_gc=benchmarkit__with_gc)
             table.append(benchmark_result)
 
-         if rank_by == 'best':
+         if benchmarkit__rank_by == 'best':
             table = sorted(table, key=itemgetter('best_loop_sec'))
             compare_reference = table[0]['best_loop_sec']
             for idx, dict_ in enumerate(table):
@@ -451,7 +542,7 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
                   dict_['worst_loop_sec'] = format_time(dict_['worst_loop_sec'])
                   dict_['second_worst_loop_sec'] = format_time(dict_['second_worst_loop_sec'])
                   dict_['all_loops_time_sec'] = format_time(dict_['all_loops_time_sec'])
-         elif rank_by == 'average':
+         elif benchmarkit__rank_by == 'average':
             table = sorted(table, key=itemgetter('avg_loop_sec'))
             compare_reference = table[0]['avg_loop_sec']
             for idx, dict_ in enumerate(table):
@@ -481,7 +572,7 @@ def speedit_benchmark(func_dict, setup_line_list, use_func_name=True, output_in_
 
          header_mapping = [
             ('name', 'name'),
-            ('rank-{}'.format(rank_by), 'rank'),
+            ('rank-{}'.format(benchmarkit__rank_by), 'rank'),
             ('compare %', 'compare'),
             ('num. loops', 'loops'),
             ('avg_loop', 'avg_loop_sec'),
