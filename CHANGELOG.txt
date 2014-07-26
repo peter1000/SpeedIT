@@ -1,3 +1,8 @@
+Fixes/Improvements:
+
+   * BenchmarkIT: added for check_too_fast the function name to the Exception output
+   
+   
 Version 4.2.0     2014-07-26
 ----------------------------
 
