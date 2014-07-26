@@ -17,7 +17,7 @@
 
       __author__ `str` -
 """
-__version__ = '4.2.0'
+__version__ = '4.2.1'
 RELEASE_DATE = '2014.07.26'
 SHORT_VERSION = __version__.rsplit('.', 1)[0]
 
