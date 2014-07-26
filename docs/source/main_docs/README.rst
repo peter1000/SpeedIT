@@ -62,7 +62,7 @@ MAIN plus API documentation in `development-source: 'docs folder'`
    $ make docs
 
 Resulting `html documentation` will be in:
-   /docs/SpeedIT-DOCUMENTATION/html/index.html
+   /docs/_build/html/index.html
 
 
 Getting Started

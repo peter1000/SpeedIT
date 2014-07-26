@@ -24,6 +24,9 @@ Main Info
 
 SpeedIT is a small collection of 4 modules: BenchmarkIT, ProfileIT, LineMemoryProfileIT, DisassembleIT and additional the combined: MainCode module
 
+**seealso:** There is a *newer project* which outputs in html files
+
+   - `PySpeedIT <https://github.com/peter1000/PySpeedIT>`_
 
 SpeedIT
 -------
@@ -276,15 +279,6 @@ Code Examples
 
 for code examples see the files in folder: `development-source: Examples`
 
-
-Projects using SpeedIT
-======================
-
-`projects` which make use of: **SpeedIT**
-
-`ReOBJ <https://github.com/peter1000/ReOBJ>`_  (R(estricted) E(xtended) Objects. Simple, reasonable fast, restricted/extended python objects.)
-
-`LCONF <https://github.com/peter1000/LCONF>`_  (L(ight) CONF(iguration): A simple human-readable data serialization format for dynamic configuration.)
 
 |
 |

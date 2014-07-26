@@ -243,7 +243,7 @@ class _TimeIT(object):
                      # Do this inner result
                      adjusted_func_code_line.append(('   ' * line_indentation_level) + '_speeit_prefix__result_time += _speeit_prefix__perf_counter() - _speeit_prefix__stmt_inner_start  # **SPEEDIT**END internally added')
                      if self.check_too_fast:
-                        adjusted_func_code_line.append(('   ' * line_indentation_level) + 'if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>\\n  ' + '  _start_block_stripped_line: <{}>'.format(_start_block_stripped_line) + '".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
+                        adjusted_func_code_line.append(('   ' * line_indentation_level) + 'if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("in function: <{}>'.format(self.orig_func_name) + ' code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>\\n  ' + '  _start_block_stripped_line: <{}>'.format(_start_block_stripped_line) + '".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
                      end_tag_block_speedit += 1
                   else:
                      adjusted_func_code_line.append(('   ' * line_indentation_level) + stripped_line)
@@ -257,7 +257,7 @@ class _TimeIT(object):
             # Do the last inner result: ADDING an END-TAG
             adjusted_func_code_line.append('      _speeit_prefix__result_time += _speeit_prefix__perf_counter() - _speeit_prefix__stmt_inner_start  # **SPEEDIT**END internally added')
             if self.check_too_fast:
-               adjusted_func_code_line.append('      if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>\\n  ' + '  _start_block_stripped_line: <{}>'.format(_start_block_stripped_line) + '".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
+               adjusted_func_code_line.append('      if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("in function: <{}>'.format(self.orig_func_name) + ' code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>\\n  ' + '  _start_block_stripped_line: <{}>'.format(_start_block_stripped_line) + '".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
 
       # add the normal perf_counter time lines
       else:
@@ -265,7 +265,7 @@ class _TimeIT(object):
          adjusted_func_code_line.append('      _speeit_prefix__result_time += _speeit_prefix__perf_counter() - _speeit_prefix__stmt_inner_start  # **SPEEDIT**END internally added')
 
          if self.check_too_fast:
-            adjusted_func_code_line.append('      if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
+            adjusted_func_code_line.append('      if _speeit_prefix__result_time < _speeit_prefix__check_reference_time: raise Exception("in function: <{}>'.format(self.orig_func_name) + ' code block: too fast to measure:\\n   code part: _speeit_prefix__result_time: <{:.11f}>  2 times _smallest_perf_counter_time: <{:.11f}>".format(_speeit_prefix__result_time, _speeit_prefix__check_reference_time))  # SPEEDIT: internally added')
 
       # Do the arguments
       final_param_line = []
