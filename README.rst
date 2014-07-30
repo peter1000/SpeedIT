@@ -284,8 +284,6 @@ Projects using SpeedIT
 
 `ReOBJ <https://github.com/peter1000/ReOBJ>`_  (R(estricted) E(xtended) Objects. Simple, reasonable fast, restricted/extended python objects.)
 
-`LCONF <https://github.com/peter1000/LCONF>`_  (L(ight) CONF(iguration): A simple human-readable data serialization format for dynamic configuration.)
-
 |
 |
 

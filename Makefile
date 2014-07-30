@@ -2,24 +2,22 @@
 
 PYTHON=/usr/bin/env python3
 
-.PHONY: help cleanall clean tests tests_cover build dist install docs zip_docs, info check_setup pypiupload pypiregister
+.PHONY: help cleanall clean tests tests_cover build install dist docs info check_setup pypi_all
 
 
 help:
 	@echo 'Please use: `make <target>` where <target> is one of'
-	@echo '  cleanall       to clean inclusive generated documentation: docs.'
-	@echo '  clean          to clean but keep any generated documentation: docs.'
-	@echo '  tests          to test the project'
-	@echo '  tests_cover    to test the project and produce a coverage report: dir cover'
-	@echo '  build          to build the project'
-	@echo '  install        to install the package'
-	@echo '  dist           to build a source distribution tar file'
-	@echo '  docs           to build the docs for the project'
-	@echo '  zip_docs       generate a zip file of the docs: e.g. to upload to pypi'
-	@echo '  info           to build the general info'
-	@echo '  check_setup    checks the setup.py file'
-	@echo '  pypiupload     builds a release and uploads it to pypi'
-	@echo '  pypiregister   register/submit your distribution’s meta-data to the pypi index'
+	@echo '  cleanall             clean inclusive generated documentation and cython c files.'
+	@echo '  clean                basic clean: keeps builds, docs and cython c and extensions (.so) files'
+	@echo '  tests                test the project: BUT remove any cython extensions'
+	@echo '  tests_cover          test with coverage report: html dir: `cover` BUT remove any cython extensions'
+	@echo '  build                build the project'
+	@echo '  install              install the package'
+	@echo '  dist                 build a source distribution tar file'
+	@echo '  docs                 build the docs for the project'
+	@echo '  info                 build the general info'
+	@echo '  check_setup          checks the setup.py file'
+	@echo '  pypi_all             re-register/upload (inclusive docs) to pypi'
 
 
 cleanall: clean
@@ -27,7 +25,7 @@ cleanall: clean
 	@rm -rf docs/SpeedIT-DOCUMENTATION
 	@rm -rf info/GENERAL-INFO
 	@rm -rf docs/source/SpeedIT.rst docs/source/modules.rst
-   
+
 clean:
 	@find . -iname '__pycache__' |xargs rm -rf
 	@find . -iname '*.egg-info' |xargs rm -rf
@@ -70,14 +68,6 @@ docs:
 	$(MAKE) clean
 	@echo -e '\n=== finished docs'
 
-zip_docs: docs
-	rm -rf zipped_docs
-	mkdir zipped_docs
-	cd docs/SpeedIT-DOCUMENTATION/html && zip -r ../../../zipped_docs/docs_html_SpeedIT.zip *
-	cd ..
-	$(MAKE) clean
-	@echo -e '\n=== finished zip_docs'
-
 info:
 	rm -rf info/GENERAL-INFO
 	cd info && make html
@@ -90,15 +80,10 @@ check_setup: clean
 	$(MAKE) clean
 	@echo -e '\n=== finished check_setup'
 
-pypiupload: cleanall
-	${PYTHON} setup.py check
-	${PYTHON} setup.py sdist upload
+pypi_all: clean
+	${PYTHON} setup.py check register sdist upload
 	$(MAKE) clean
-	@echo -e '\n=== finished pypiupload'
-
-pypiregister: cleanall
-	${PYTHON} setup.py check
-	${PYTHON} setup.py register
+	$(MAKE) docs
+	${PYTHON} setup.py upload_docs
 	$(MAKE) clean
-	@echo -e '\n=== finished pypiregister'
-
+	@echo -e '\n=== finished pypi_all'
