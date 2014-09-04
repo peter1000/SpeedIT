@@ -8,6 +8,10 @@ SpeedIT's documentation
 
 **SpeedIT: A Collection of: Benchmark-IT, Profile-IT, Line-Memory-Profile-IT, Disassemble-IT.**
 
+.. seealso:: There is a *newer project* which outputs in html files
+
+   `PySpeedIT <https://github.com/peter1000/PySpeedIT>`_
+
 
 :Author: peter1000
 :Github: https://github.com/peter1000
